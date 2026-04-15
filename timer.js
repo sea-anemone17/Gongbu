@@ -11,8 +11,15 @@ const praiseMessages = [
 ];
 
 function renderTimer() {
+  const data = loadAppData();
+  const current = getCurrentExplorer(data);
   const timerDisplay = document.getElementById("timerDisplay");
+
   if (!timerDisplay) return;
+
+  if (current && typeof current.timer?.remainingSeconds === "number") {
+    remainingSeconds = current.timer.remainingSeconds;
+  }
 
   const min = String(Math.floor(remainingSeconds / 60)).padStart(2, "0");
   const sec = String(remainingSeconds % 60).padStart(2, "0");
@@ -62,7 +69,7 @@ function playTimerFinishEffect(message) {
 
 function startTimer() {
   const minutesInput = document.getElementById("timerMinutes");
-  const value = parseInt(minutesInput.value);
+  const value = parseInt(minutesInput?.value);
 
   if (isNaN(value) || value <= 0) {
     alert("타이머 시간을 분 단위로 입력해 주세요.");
@@ -72,6 +79,7 @@ function startTimer() {
   if (timerInterval) clearInterval(timerInterval);
 
   remainingSeconds = value * 60;
+  syncTimerToCurrentExplorer();
   renderTimer();
 
   const praise = document.getElementById("timerPraise");
@@ -82,16 +90,21 @@ function startTimer() {
 
   timerInterval = setInterval(() => {
     remainingSeconds--;
+    syncTimerToCurrentExplorer();
     renderTimer();
 
     if (remainingSeconds <= 0) {
       clearInterval(timerInterval);
       timerInterval = null;
       remainingSeconds = 0;
+      syncTimerToCurrentExplorer();
       renderTimer();
+
+      grantTimerReward();
 
       const msg = getRandomPraise();
       playTimerFinishEffect(msg);
+      renderAll();
     }
   }, 1000);
 }
@@ -101,11 +114,13 @@ function stopTimer() {
     clearInterval(timerInterval);
     timerInterval = null;
   }
+  syncTimerToCurrentExplorer();
 }
 
 function resetTimer() {
   stopTimer();
   remainingSeconds = 0;
+  syncTimerToCurrentExplorer();
   renderTimer();
 
   const timerPraise = document.getElementById("timerPraise");
@@ -124,4 +139,53 @@ function resetTimer() {
   if (overlay) {
     overlay.innerHTML = "";
   }
+}
+
+function syncTimerToCurrentExplorer() {
+  const data = loadAppData();
+  const current = getCurrentExplorer(data);
+  if (!current) return;
+
+  current.timer.remainingSeconds = remainingSeconds;
+  current.timer.isRunning = !!timerInterval;
+  saveAppData(data);
+}
+
+function grantTimerReward() {
+  const data = loadAppData();
+  const current = getCurrentExplorer(data);
+  if (!current) return;
+
+  current.growth.지속력 += 2;
+  clampExplorerGrowth(current);
+
+  current.logs.unshift({
+    id: makeId("timerlog"),
+    date: new Date().toLocaleString(),
+    questTitle: "타이머 완료",
+    subjectId: null,
+    subjectName: "집중",
+    questType: "타이머",
+    difficulty: "보통",
+    resultRank: "⏳ 완료",
+    blockReason: "집중 시간 완료",
+    reflection: "타이머를 끝까지 유지했다"
+  });
+
+  if (current.logs.length > 30) {
+    current.logs.pop();
+  }
+
+  current.microLogs.unshift({
+    id: makeId("micro"),
+    name: "타이머 완료",
+    date: new Date().toLocaleString()
+  });
+
+  if (current.microLogs.length > 10) {
+    current.microLogs.pop();
+  }
+
+  current.titles = getUnlockedTitles(current);
+  saveAppData(data);
 }
