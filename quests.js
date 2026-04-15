@@ -117,18 +117,20 @@ function deleteQuest(questId) {
 
 function getTodayDateKey() {
   const now = new Date();
-  return `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,"0")}-${String(now.getDate()).padStart(2,"0")}`;
+  return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-${String(now.getDate()).padStart(2, "0")}`;
 }
 
 function addDaysToDateKey(baseDateKey, days) {
   const date = new Date(baseDateKey);
   date.setDate(date.getDate() + days);
-  return `${date.getFullYear()}-${String(date.getMonth()+1).padStart(2,"0")}-${String(date.getDate()).padStart(2,"0")}`;
+  return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
 }
 
 function createReviewSchedule(current, quest, sourceLogId) {
   const today = getTodayDateKey();
-  [1,3,7].forEach(days => {
+  const reviewDays = [1, 3, 7];
+
+  reviewDays.forEach(days => {
     current.reviews.push({
       id: makeId("review"),
       sourceQuestId: quest.id,
@@ -163,8 +165,17 @@ function completeQuest(questId) {
     "5": "💥 대실패"
   };
 
-  const resultRank = resultMap[prompt("1~5 결과 입력", "2")];
-  if (!resultRank) return;
+  const resultInput = prompt(
+    "판정 결과를 입력하세요:\n1. 대성공\n2. 성공\n3. 부분 성공\n4. 실패\n5. 대실패",
+    "2"
+  );
+  if (resultInput === null) return;
+
+  const resultRank = resultMap[resultInput];
+  if (!resultRank) {
+    alert("1~5 중 하나를 입력해 주세요.");
+    return;
+  }
 
   const blockReason = prompt("막힘 원인", "개념 이해") || "";
   const selfExplanation = prompt("자기설명", "") || "";
@@ -189,8 +200,10 @@ function completeQuest(questId) {
 
   createReviewSchedule(current, quest, newLog.id);
 
-  // ⭐ 핵심 수정
   applyQuestGrowth(current, quest);
+
+  // ✅ 완료한 퀘스트는 목록에서 제거
+  current.quests = current.quests.filter(q => q.id !== questId);
 
   saveAppData(data);
   renderAll();
@@ -216,8 +229,17 @@ function completeReview(reviewId) {
     "5": "💥 대실패"
   };
 
-  const resultRank = resultMap[prompt("회상 결과", "2")];
-  if (!resultRank) return;
+  const resultInput = prompt(
+    "회상 퀘스트 결과를 입력하세요:\n1. 대성공\n2. 성공\n3. 부분 성공\n4. 실패\n5. 대실패",
+    "2"
+  );
+  if (resultInput === null) return;
+
+  const resultRank = resultMap[resultInput];
+  if (!resultRank) {
+    alert("1~5 중 하나를 입력해 주세요.");
+    return;
+  }
 
   const blockReason = prompt("막힘 원인", "") || "";
   const selfExplanation = prompt("자기설명", "") || "";
@@ -239,10 +261,10 @@ function completeReview(reviewId) {
 
   if (current.logs.length > 30) current.logs.pop();
 
-  review.status = "done";
-
-  // ⭐ 핵심 수정
   applyQuestGrowth(current, { type: "회상", difficulty: "보통" });
+
+  // ✅ 완료한 복습은 pending에서 제거
+  current.reviews = current.reviews.filter(r => r.id !== reviewId);
 
   saveAppData(data);
   renderAll();
