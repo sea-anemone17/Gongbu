@@ -87,38 +87,16 @@ function deleteExplorer(explorerId) {
   renderAll();
 }
 
-function saveCharacter() {
-  const data = loadAppData();
-  const current = getCurrentExplorer(data);
-
-  if (!current) {
-    alert("먼저 탐사자를 선택해 주세요.");
-    return;
-  }
-
-  const name = document.getElementById("explorerName")?.value.trim() || current.name;
-  const alias = document.getElementById("explorerAlias")?.value.trim() || "";
-  const theme = document.getElementById("explorerTheme")?.value.trim() || "";
-
-  current.name = name;
-  current.alias = alias;
-  current.theme = theme;
-
-  saveAppData(data);
-  renderAll();
-}
-
 function renderCharacter() {
   const data = loadAppData();
   const current = getCurrentExplorer(data);
 
   const preview = document.getElementById("characterPreview");
-  const nameInput = document.getElementById("explorerName");
-  const aliasInput = document.getElementById("explorerAlias");
-  const themeInput = document.getElementById("explorerTheme");
+  const currentTitles = document.getElementById("currentTitles");
 
   if (!current) {
     if (preview) preview.innerHTML = "아직 선택된 탐사자가 없습니다.";
+    if (currentTitles) currentTitles.innerHTML = `<span class="badge">아직 없음</span>`;
     return;
   }
 
@@ -128,15 +106,5 @@ function renderCharacter() {
       별칭: ${current.alias || "없음"}<br>
       테마: ${current.theme || "없음"}
     `;
-  }
-
-  if (nameInput && document.activeElement !== nameInput) {
-    nameInput.value = current.name || "";
-  }
-  if (aliasInput && document.activeElement !== aliasInput) {
-    aliasInput.value = current.alias || "";
-  }
-  if (themeInput && document.activeElement !== themeInput) {
-    themeInput.value = current.theme || "";
   }
 }
