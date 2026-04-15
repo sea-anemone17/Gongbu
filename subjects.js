@@ -87,9 +87,8 @@ function deleteSubject(subjectId) {
   if (!ok) return;
 
   current.subjects = current.subjects.filter(subject => subject.id !== subjectId);
-
-  // 해당 과목에 연결된 퀘스트도 같이 삭제
   current.quests = current.quests.filter(quest => quest.subjectId !== subjectId);
+  current.reviews = current.reviews.filter(review => review.subjectId !== subjectId);
 
   saveAppData(data);
   renderAll();
