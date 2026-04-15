@@ -94,10 +94,8 @@ function addQuest() {
 
   saveAppData(data);
 
-  const titleInput = document.getElementById("questTitle");
-  const memoInput = document.getElementById("questMemo");
-  if (titleInput) titleInput.value = "";
-  if (memoInput) memoInput.value = "";
+  document.getElementById("questTitle").value = "";
+  document.getElementById("questMemo").value = "";
 
   renderAll();
 }
@@ -110,8 +108,7 @@ function deleteQuest(questId) {
   const quest = current.quests.find(q => q.id === questId);
   if (!quest) return;
 
-  const ok = confirm(`${quest.title} 퀘스트를 삭제할까요?`);
-  if (!ok) return;
+  if (!confirm(`${quest.title} 퀘스트를 삭제할까요?`)) return;
 
   current.quests = current.quests.filter(q => q.id !== questId);
   saveAppData(data);
@@ -120,26 +117,18 @@ function deleteQuest(questId) {
 
 function getTodayDateKey() {
   const now = new Date();
-  const y = now.getFullYear();
-  const m = String(now.getMonth() + 1).padStart(2, "0");
-  const d = String(now.getDate()).padStart(2, "0");
-  return `${y}-${m}-${d}`;
+  return `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,"0")}-${String(now.getDate()).padStart(2,"0")}`;
 }
 
 function addDaysToDateKey(baseDateKey, days) {
   const date = new Date(baseDateKey);
   date.setDate(date.getDate() + days);
-  const y = date.getFullYear();
-  const m = String(date.getMonth() + 1).padStart(2, "0");
-  const d = String(date.getDate()).padStart(2, "0");
-  return `${y}-${m}-${d}`;
+  return `${date.getFullYear()}-${String(date.getMonth()+1).padStart(2,"0")}-${String(date.getDate()).padStart(2,"0")}`;
 }
 
 function createReviewSchedule(current, quest, sourceLogId) {
   const today = getTodayDateKey();
-  const reviewDays = [1, 3, 7];
-
-  reviewDays.forEach(days => {
+  [1,3,7].forEach(days => {
     current.reviews.push({
       id: makeId("review"),
       sourceQuestId: quest.id,
@@ -162,10 +151,9 @@ function completeQuest(questId) {
   const quest = current.quests.find(q => q.id === questId);
   if (!quest) return;
 
-  const resultPrompt =
-    "판정 결과를 입력하세요:\n1. 대성공\n2. 성공\n3. 부분 성공\n4. 실패\n5. 대실패";
-  const resultInput = prompt(resultPrompt, "2");
-  if (resultInput === null) return;
+  if (!current.growth) {
+    current.growth = createDefaultGrowth();
+  }
 
   const resultMap = {
     "1": "🌟 대성공",
@@ -175,23 +163,12 @@ function completeQuest(questId) {
     "5": "💥 대실패"
   };
 
-  const resultRank = resultMap[resultInput];
-  if (!resultRank) {
-    alert("1~5 중 하나를 입력해 주세요.");
-    return;
-  }
+  const resultRank = resultMap[prompt("1~5 결과 입력", "2")];
+  if (!resultRank) return;
 
-  const reasonPrompt =
-    "실패/막힘 유형을 입력해 주세요.\n예: 개념 누락 / 조건 해석이 흔들림 / 적용이 불안정함 / 계산 실수 / 시간 압박";
-  const blockReason = prompt(reasonPrompt, "개념 이해가 깊어짐");
-  if (blockReason === null) return;
-
-  const selfExplanation = prompt(
-    "자기설명: 이 개념을 한 문장으로 설명하면?",
-    ""
-  ) || "";
-
-  const reflection = prompt("짧은 메모를 남길까요?", "") || "";
+  const blockReason = prompt("막힘 원인", "개념 이해") || "";
+  const selfExplanation = prompt("자기설명", "") || "";
+  const reflection = prompt("메모", "") || "";
 
   const newLog = {
     id: makeId("log"),
@@ -208,13 +185,12 @@ function completeQuest(questId) {
   };
 
   current.logs.unshift(newLog);
-
-  if (current.logs.length > 30) {
-    current.logs.pop();
-  }
+  if (current.logs.length > 30) current.logs.pop();
 
   createReviewSchedule(current, quest, newLog.id);
-  applyGrowth(current, resultRank, quest.type, quest.subjectId, blockReason);
+
+  // ⭐ 핵심 수정
+  applyQuestGrowth(current, quest);
 
   saveAppData(data);
   renderAll();
@@ -228,10 +204,9 @@ function completeReview(reviewId) {
   const review = current.reviews.find(r => r.id === reviewId);
   if (!review) return;
 
-  const resultPrompt =
-    "회상 퀘스트 결과를 입력하세요:\n1. 대성공\n2. 성공\n3. 부분 성공\n4. 실패\n5. 대실패";
-  const resultInput = prompt(resultPrompt, "2");
-  if (resultInput === null) return;
+  if (!current.growth) {
+    current.growth = createDefaultGrowth();
+  }
 
   const resultMap = {
     "1": "🌟 대성공",
@@ -241,27 +216,12 @@ function completeReview(reviewId) {
     "5": "💥 대실패"
   };
 
-  const resultRank = resultMap[resultInput];
-  if (!resultRank) {
-    alert("1~5 중 하나를 입력해 주세요.");
-    return;
-  }
+  const resultRank = resultMap[prompt("회상 결과", "2")];
+  if (!resultRank) return;
 
-  const blockReason = prompt(
-    "실패/막힘 유형을 입력해 주세요.\n예: 조건 해석이 흔들림 / 적용이 불안정함 / 계산 실수 / 개념 누락",
-    "적용이 불안정함"
-  );
-  if (blockReason === null) return;
-
-  const selfExplanation = prompt(
-    "자기설명: 이 개념을 한 문장으로 설명하면?",
-    ""
-  ) || "";
-
-  const reflection = prompt(
-    "짧은 복습 메모를 남길까요?",
-    ""
-  ) || "";
+  const blockReason = prompt("막힘 원인", "") || "";
+  const selfExplanation = prompt("자기설명", "") || "";
+  const reflection = prompt("메모", "") || "";
 
   current.logs.unshift({
     id: makeId("log"),
@@ -277,13 +237,13 @@ function completeReview(reviewId) {
     reflection
   });
 
-  if (current.logs.length > 30) {
-    current.logs.pop();
-  }
+  if (current.logs.length > 30) current.logs.pop();
 
   review.status = "done";
 
-  applyGrowth(current, resultRank, "회상", review.subjectId, blockReason);
+  // ⭐ 핵심 수정
+  applyQuestGrowth(current, { type: "회상", difficulty: "보통" });
+
   saveAppData(data);
   renderAll();
 }
