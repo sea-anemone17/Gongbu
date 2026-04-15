@@ -1,276 +1,140 @@
+// 성장치 기본값
+function createDefaultGrowth() {
+  return {
+    이해력: 0,
+    적용력: 0,
+    정확도: 0,
+    복구력: 0,
+    지속력: 0
+  };
+}
+
+// 안전 보정 (음수 방지 등)
+function clampExplorerGrowth(explorer) {
+  for (const key in explorer.growth) {
+    if (explorer.growth[key] < 0) explorer.growth[key] = 0;
+  }
+}
+
+// 퀘스트 완료 시 성장 반영
+function applyQuestGrowth(explorer, quest) {
+  if (!explorer.growth) {
+    explorer.growth = createDefaultGrowth();
+  }
+
+  const difficultyWeight = {
+    낮음: 1,
+    보통: 2,
+    높음: 3
+  };
+
+  const weight = difficultyWeight[quest.difficulty] || 1;
+
+  switch (quest.type) {
+    case "탐사":
+      explorer.growth.이해력 += 1 * weight;
+      break;
+
+    case "해석":
+      explorer.growth.이해력 += 2 * weight;
+      explorer.growth.적용력 += 1 * weight;
+      break;
+
+    case "판정":
+      explorer.growth.적용력 += 2 * weight;
+      explorer.growth.정확도 += 1 * weight;
+      break;
+
+    case "복구":
+      explorer.growth.복구력 += 2 * weight;
+      explorer.growth.정확도 += 1 * weight;
+      break;
+
+    case "회상":
+      explorer.growth.이해력 += 1 * weight;
+      explorer.growth.정확도 += 2 * weight;
+      break;
+  }
+
+  clampExplorerGrowth(explorer);
+}
+
+// ⭐ 타이머 전용 성장 (완전히 분리)
+function applyTimerGrowth(explorer, minutes) {
+  if (!explorer.growth) {
+    explorer.growth = createDefaultGrowth();
+  }
+
+  // 시간 기준 보상 (너무 크지 않게 설계)
+  const gain = Math.max(1, Math.floor(minutes / 5));
+
+  explorer.growth.지속력 += gain;
+
+  clampExplorerGrowth(explorer);
+}
+
+// 성장 UI 렌더링
 function renderGrowth() {
   const data = loadAppData();
   const current = getCurrentExplorer(data);
-  const growthBox = document.getElementById("growthBox");
+  const container = document.getElementById("growthBox");
 
-  if (!growthBox) return;
+  if (!container) return;
 
   if (!current) {
-    growthBox.innerHTML = `<div class="empty">먼저 탐사자를 선택해 주세요.</div>`;
+    container.innerHTML = `<div class="empty">탐사자를 선택하세요</div>`;
     return;
   }
 
-  const g = current.growth;
+  if (!current.growth) {
+    current.growth = createDefaultGrowth();
+  }
 
-  growthBox.innerHTML = `
+  const growth = current.growth;
+
+  const maxValue = 100; // 임시 기준 (나중에 레벨 시스템 붙일 수 있음)
+
+  container.innerHTML = `
     <div class="growth-grid">
-      ${renderGrowthCard("이해력", g.이해력)}
-      ${renderGrowthCard("구조화력", g.구조화력)}
-      ${renderGrowthCard("적용력", g.적용력)}
-      ${renderGrowthCard("복구력", g.복구력)}
-      ${renderGrowthCard("지속력", g.지속력)}
+      ${renderGrowthCard("이해력", growth.이해력, maxValue)}
+      ${renderGrowthCard("적용력", growth.적용력, maxValue)}
+      ${renderGrowthCard("정확도", growth.정확도, maxValue)}
+      ${renderGrowthCard("복구력", growth.복구력, maxValue)}
+      ${renderGrowthCard("지속력", growth.지속력, maxValue)}
     </div>
   `;
 }
 
-function renderGrowthCard(name, value) {
+// 카드 UI
+function renderGrowthCard(name, value, max) {
+  const percent = Math.min(100, (value / max) * 100);
+
   return `
     <div class="growth-card">
       <div class="growth-name">${name}</div>
       <div class="growth-value">${value}</div>
       <div class="bar">
-        <div class="bar-fill" style="width:${value}%;"></div>
+        <div class="bar-fill" style="width: ${percent}%"></div>
       </div>
     </div>
   `;
 }
 
-function applyGrowth(current, resultRank, questType, subjectId, blockReason = "") {
-  if (resultRank === "🌟 대성공") {
-    current.growth.이해력 += 2;
-    current.growth.적용력 += 2;
-    current.growth.지속력 += 1;
-  } else if (resultRank === "✅ 성공") {
-    current.growth.이해력 += 1;
-    current.growth.지속력 += 1;
-  } else if (resultRank === "☑️ 부분 성공") {
-    current.growth.구조화력 += 1;
-  } else if (resultRank === "❌ 실패") {
-    current.growth.복구력 += 2;
-  } else if (resultRank === "💥 대실패") {
-    current.growth.복구력 += 3;
-  } else if (resultRank === "⏳ 완료") {
-    current.growth.지속력 += 2;
-  }
+// 칭호 해금
+function getUnlockedTitles(explorer) {
+  const g = explorer.growth || {};
 
-  if (questType === "탐사") current.growth.이해력 += 1;
-  if (questType === "해석") current.growth.구조화력 += 1;
-  if (questType === "판정") current.growth.적용력 += 1;
-  if (questType === "복구") current.growth.복구력 += 1;
-  if (questType === "회상") {
-    current.growth.이해력 += 1;
-    current.growth.구조화력 += 1;
-  }
-
-  if (blockReason === "설명 가능해짐") current.growth.구조화력 += 2;
-  if (blockReason === "오답 복구 성공") current.growth.복구력 += 2;
-  if (blockReason === "자동화 부족") current.growth.지속력 += 1;
-  if (blockReason === "개념 이해가 깊어짐") current.growth.이해력 += 2;
-  if (blockReason === "적용이 불안정함") current.growth.적용력 += 1;
-
-  const subject = current.subjects.find(s => s.id === subjectId);
-  if (subject) {
-    if (questType === "탐사") subject.stats.이해력 += 1;
-    if (questType === "해석") subject.stats.구조화력 += 1;
-    if (questType === "판정") subject.stats.적용력 += 1;
-    if (questType === "복구") subject.stats.복구력 += 1;
-    if (questType === "회상") {
-      subject.stats.이해력 += 1;
-      subject.stats.구조화력 += 1;
-    }
-
-    if (resultRank === "🌟 대성공") {
-      subject.stats.이해력 += 1;
-      subject.stats.적용력 += 1;
-    }
-    if (resultRank === "💥 대실패") {
-      subject.stats.복구력 += 1;
-    }
-  }
-
-  clampExplorerGrowth(current);
-  current.titles = getUnlockedTitles(current);
-}
-
-function getUnlockedTitles(current) {
   const titles = [];
-  const totalLogs = current.logs.length;
-  const successCount = current.logs.filter(log => log.resultRank === "🌟 대성공").length;
-  const failCount = current.logs.filter(
-    log => log.resultRank === "❌ 실패" || log.resultRank === "💥 대실패"
-  ).length;
-  const recoverCount = current.logs.filter(
-    log => log.blockReason === "오답 복구 성공"
-  ).length;
 
-  if (totalLogs >= 1) titles.push("첫 기록자");
-  if (totalLogs >= 5) titles.push("학습 탐사자");
-  if (totalLogs >= 10) titles.push("로그 축적자");
-  if (successCount >= 3) titles.push("정밀 해석자");
-  if (recoverCount >= 3) titles.push("개념 복원가");
-  if (failCount >= 3) titles.push("복구 생존자");
+  if ((g.이해력 || 0) >= 10) titles.push("개념 추적자");
+  if ((g.적용력 || 0) >= 10) titles.push("문제 해석자");
+  if ((g.정확도 || 0) >= 10) titles.push("판정 안정자");
+  if ((g.복구력 || 0) >= 10) titles.push("오류 복원자");
+  if ((g.지속력 || 0) >= 10) titles.push("끈기의 항해자");
 
-  if (current.growth.이해력 >= 30) titles.push("의미 추적자");
-  if (current.growth.구조화력 >= 30) titles.push("구조 설계자");
-  if (current.growth.적용력 >= 30) titles.push("판정 실행자");
-  if (current.growth.복구력 >= 30) titles.push("회수 전문가");
-  if (current.growth.지속력 >= 30) titles.push("끈질긴 항해사");
+  if (Object.values(g).reduce((a, b) => a + b, 0) >= 50) {
+    titles.push("구조를 이해한 자");
+  }
 
   return titles;
-}
-
-function renderTitles() {
-  const data = loadAppData();
-  const current = getCurrentExplorer(data);
-
-  const currentTitles = document.getElementById("currentTitles");
-  const titleList = document.getElementById("titleList");
-
-  if (!current) {
-    if (currentTitles) currentTitles.innerHTML = `<span class="badge">탐사자 없음</span>`;
-    if (titleList) titleList.innerHTML = `<div class="empty">먼저 탐사자를 선택해 주세요.</div>`;
-    return;
-  }
-
-  const titles = getUnlockedTitles(current);
-
-  if (currentTitles) {
-    currentTitles.innerHTML = titles.length
-      ? titles.map(title => `<span class="badge">${title}</span>`).join("")
-      : `<span class="badge">아직 없음</span>`;
-  }
-
-  if (titleList) {
-    titleList.innerHTML = titles.length
-      ? titles.map(title => `
-          <div class="item">
-            <div class="item-title">🏅 ${title}</div>
-            <div class="muted">누적 기록과 성장치에 따라 해금된 칭호입니다.</div>
-          </div>
-        `).join("")
-      : `<div class="empty">아직 해금된 칭호가 없습니다.</div>`;
-  }
-}
-
-function renderLogs() {
-  const data = loadAppData();
-  const current = getCurrentExplorer(data);
-  const logList = document.getElementById("logList");
-
-  if (!logList) return;
-
-  if (!current) {
-    logList.innerHTML = `<div class="empty">먼저 탐사자를 선택해 주세요.</div>`;
-    return;
-  }
-
-  if (current.logs.length === 0) {
-    logList.innerHTML = `<div class="empty">아직 로그가 없습니다.</div>`;
-    return;
-  }
-
-  logList.innerHTML = current.logs.map(log => `
-    <div class="item">
-      <div class="item-title">${log.resultRank} ${log.questTitle}</div>
-      <div class="muted">
-        ${log.subjectName} / ${log.questType} / ${log.difficulty}
-      </div>
-      <div class="muted">원인: ${log.blockReason || "기록 없음"}</div>
-      <div class="muted">자기설명: ${log.selfExplanation || "없음"}</div>
-      <div class="muted">메모: ${log.reflection || "없음"}</div>
-      <div class="muted">${log.date}</div>
-    </div>
-  `).join("");
-}
-
-function renderMicro() {
-  const data = loadAppData();
-  const current = getCurrentExplorer(data);
-  const microList = document.getElementById("microList");
-
-  if (!microList) return;
-
-  if (!current) {
-    microList.innerHTML = `<div class="empty">먼저 탐사자를 선택해 주세요.</div>`;
-    return;
-  }
-
-  if (current.microLogs.length === 0) {
-    microList.innerHTML = `<div class="empty">아직 응급 퀘스트 기록이 없습니다.</div>`;
-    return;
-  }
-
-  microList.innerHTML = current.microLogs.map(item => `
-    <div class="item">
-      <div class="item-title">🫧 ${item.name}</div>
-      <div class="muted">${item.date}</div>
-    </div>
-  `).join("");
-}
-
-function renderReviewList() {
-  const data = loadAppData();
-  const current = getCurrentExplorer(data);
-  const reviewList = document.getElementById("reviewList");
-
-  if (!reviewList) return;
-
-  if (!current) {
-    reviewList.innerHTML = `<div class="empty">먼저 탐사자를 선택해 주세요.</div>`;
-    return;
-  }
-
-  const pendingReviews = current.reviews
-    .filter(review => review.status === "pending")
-    .sort((a, b) => a.reviewDate.localeCompare(b.reviewDate));
-
-  if (pendingReviews.length === 0) {
-    reviewList.innerHTML = `<div class="empty">아직 예약된 복습이 없습니다.</div>`;
-    return;
-  }
-
-  reviewList.innerHTML = pendingReviews.map(review => `
-    <div class="item">
-      <div class="item-title">${review.title}</div>
-      <div class="muted">${review.subjectName} / ${review.reviewType}</div>
-      <div class="muted">복습일: ${review.reviewDate}</div>
-      <div class="button-row" style="margin-top:10px;">
-        <button class="main-btn" onclick="completeReview('${review.id}')">회상 완료</button>
-      </div>
-    </div>
-  `).join("");
-}
-
-function renderFailureStats() {
-  const data = loadAppData();
-  const current = getCurrentExplorer(data);
-  const failureStats = document.getElementById("failureStats");
-
-  if (!failureStats) return;
-
-  if (!current) {
-    failureStats.innerHTML = `<div class="empty">먼저 탐사자를 선택해 주세요.</div>`;
-    return;
-  }
-
-  const counts = {};
-
-  current.logs.forEach(log => {
-    if (!log.blockReason) return;
-    counts[log.blockReason] = (counts[log.blockReason] || 0) + 1;
-  });
-
-  const sorted = Object.entries(counts).sort((a, b) => b[1] - a[1]);
-
-  if (sorted.length === 0) {
-    failureStats.innerHTML = `<div class="empty">아직 통계가 없습니다.</div>`;
-    return;
-  }
-
-  failureStats.innerHTML = sorted.map(([reason, count]) => `
-    <div class="item">
-      <div class="item-title">${reason}</div>
-      <div class="muted">누적 ${count}회</div>
-    </div>
-  `).join("");
 }
