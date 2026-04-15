@@ -3,7 +3,7 @@ function createDefaultGrowth() {
   return {
     이해력: 0,
     적용력: 0,
-    정확도: 0,
+    구조화력: 0,
     복구력: 0,
     지속력: 0
   };
@@ -42,17 +42,17 @@ function applyQuestGrowth(explorer, quest) {
 
     case "판정":
       explorer.growth.적용력 += 2 * weight;
-      explorer.growth.정확도 += 1 * weight;
+      explorer.growth.구조화력 += 1 * weight;
       break;
 
     case "복구":
       explorer.growth.복구력 += 2 * weight;
-      explorer.growth.정확도 += 1 * weight;
+      explorer.growth.구조화력 += 1 * weight;
       break;
 
     case "회상":
       explorer.growth.이해력 += 1 * weight;
-      explorer.growth.정확도 += 2 * weight;
+      explorer.growth.구조화력 += 2 * weight;
       break;
   }
 
@@ -98,7 +98,7 @@ function renderGrowth() {
     <div class="growth-grid">
       ${renderGrowthCard("이해력", growth.이해력, maxValue)}
       ${renderGrowthCard("적용력", growth.적용력, maxValue)}
-      ${renderGrowthCard("정확도", growth.정확도, maxValue)}
+      ${renderGrowthCard("구조화력", growth.구조화력, maxValue)}
       ${renderGrowthCard("복구력", growth.복구력, maxValue)}
       ${renderGrowthCard("지속력", growth.지속력, maxValue)}
     </div>
@@ -128,7 +128,7 @@ function getUnlockedTitles(explorer) {
 
   if ((g.이해력 || 0) >= 10) titles.push("개념 추적자");
   if ((g.적용력 || 0) >= 10) titles.push("문제 해석자");
-  if ((g.정확도 || 0) >= 10) titles.push("판정 안정자");
+  if ((g.구조화력 || 0) >= 10) titles.push("판정 안정자");
   if ((g.복구력 || 0) >= 10) titles.push("오류 복원자");
   if ((g.지속력 || 0) >= 10) titles.push("끈기의 항해자");
 
