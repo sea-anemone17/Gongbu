@@ -7,59 +7,167 @@
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <h1>학습 탐사록</h1>
+  <div class="container">
+    <div class="card">
+      <h1>📖 학습 탐사록</h1>
+      <p class="subtitle">
+        공부를 퀘스트처럼 수행하고, 판정처럼 기록하며, 성장과 복구를 추적하는 개인용 학습 TRPG 도구입니다.
+      </p>
+    </div>
 
-  <section>
-    <h2>탐사자</h2>
-    <input id="explorerName" placeholder="이름">
-    <input id="explorerAlias" placeholder="별칭">
-    <input id="explorerTheme" placeholder="테마">
-    <button id="addExplorerButton">탐사자 추가</button>
-    <select id="explorerSelect"></select>
-    <div id="explorerList"></div>
-  </section>
+    <div class="card">
+      <div class="hero">
+        <div class="today-box">
+          <div class="small-title">현재 탐사 상태</div>
+          <p class="muted">
+            탐사자를 선택하고, 과목을 등록한 뒤, 퀘스트를 생성해 공부 로그를 쌓아 보세요.
+          </p>
+        </div>
 
-  <section>
-    <h2>과목</h2>
-    <input id="subjectName" placeholder="과목 이름">
-    <button id="addSubjectButton">과목 추가</button>
-    <div id="subjectList"></div>
-  </section>
+        <div class="stats-mini">
+          <div class="stats-mini-item">
+            <div class="small-title">안내</div>
+            <div class="muted">
+              탐사자 → 과목 → 퀘스트 순으로 등록하면 가장 자연스럽게 사용할 수 있습니다.
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
 
-  <section>
-    <h2>퀘스트</h2>
-    <input id="questTitle" placeholder="퀘스트 이름">
-    <select id="subjectSelect"></select>
-    <select id="questType">
-      <option value="탐사">탐사</option>
-      <option value="해석">해석</option>
-      <option value="판정">판정</option>
-      <option value="복구">복구</option>
-    </select>
-    <select id="questDifficulty">
-      <option value="낮음">낮음</option>
-      <option value="보통">보통</option>
-      <option value="높음">높음</option>
-    </select>
-    <textarea id="questMemo" placeholder="메모"></textarea>
-    <button id="addQuestButton">퀘스트 추가</button>
-    <div id="questList"></div>
-  </section>
+    <div class="card">
+      <h2>🧍 탐사자</h2>
+      <div class="grid">
+        <div class="grid-3">
+          <div class="field">
+            <label for="explorerName">이름</label>
+            <input id="explorerName" placeholder="예: Hazel">
+          </div>
 
-  <section>
-    <h2>성장치</h2>
-    <div id="growthBox"></div>
-  </section>
+          <div class="field">
+            <label for="explorerAlias">별칭</label>
+            <input id="explorerAlias" placeholder="예: 로그 해석자">
+          </div>
 
-  <section>
-    <h2>타이머</h2>
-    <input id="timerMinutes" type="number" placeholder="분">
-    <button id="startTimerButton">시작</button>
-    <button id="stopTimerButton">정지</button>
-    <button id="resetTimerButton">리셋</button>
-    <div id="timerDisplay">00:00</div>
-    <div id="timerPraise"></div>
-  </section>
+          <div class="field">
+            <label for="explorerTheme">테마</label>
+            <input id="explorerTheme" placeholder="예: 의미를 찾아 구조를 복원하는 탐사자">
+          </div>
+        </div>
+
+        <div class="button-row">
+          <button class="main-btn" id="addExplorerButton">탐사자 추가</button>
+        </div>
+
+        <div class="field">
+          <label for="explorerSelect">현재 탐사자 선택</label>
+          <select id="explorerSelect">
+            <option value="">탐사자를 선택하세요</option>
+          </select>
+        </div>
+
+        <div id="explorerList"></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>📚 과목</h2>
+      <div class="grid">
+        <div class="grid-2">
+          <div class="field">
+            <label for="subjectName">과목 이름</label>
+            <input id="subjectName" placeholder="예: 수학, 영어, 법, 세계지리">
+          </div>
+
+          <div class="field" style="justify-content: end;">
+            <label>&nbsp;</label>
+            <div class="button-row">
+              <button class="main-btn" id="addSubjectButton">과목 추가</button>
+            </div>
+          </div>
+        </div>
+
+        <div id="subjectList"></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>🧭 퀘스트</h2>
+      <div class="grid">
+        <div class="field">
+          <label for="questTitle">퀘스트 이름</label>
+          <input id="questTitle" placeholder="예: 지수 법칙 예제 3개 분석하기">
+        </div>
+
+        <div class="grid-3">
+          <div class="field">
+            <label for="subjectSelect">과목 선택</label>
+            <select id="subjectSelect">
+              <option value="">과목을 선택하세요</option>
+            </select>
+          </div>
+
+          <div class="field">
+            <label for="questType">퀘스트 유형</label>
+            <select id="questType">
+              <option value="탐사">탐사</option>
+              <option value="해석">해석</option>
+              <option value="판정">판정</option>
+              <option value="복구">복구</option>
+            </select>
+          </div>
+
+          <div class="field">
+            <label for="questDifficulty">난이도</label>
+            <select id="questDifficulty">
+              <option value="낮음">낮음</option>
+              <option value="보통">보통</option>
+              <option value="높음">높음</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="field">
+          <label for="questMemo">메모</label>
+          <textarea id="questMemo" placeholder="예: 개념은 알지만 적용이 흔들림 / 조건 해석 연습 필요"></textarea>
+        </div>
+
+        <div class="button-row">
+          <button class="main-btn" id="addQuestButton">퀘스트 추가</button>
+        </div>
+
+        <div id="questList"></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>📈 성장치</h2>
+      <div id="growthBox"></div>
+    </div>
+
+    <div class="card">
+      <h2>⏳ 타이머</h2>
+      <div class="timer-panel" id="timerPanel">
+        <div class="grid">
+          <div class="field">
+            <label for="timerMinutes">시간 설정 (분)</label>
+            <input id="timerMinutes" type="number" placeholder="예: 25">
+          </div>
+
+          <div class="button-row">
+            <button class="main-btn" id="startTimerButton">시작</button>
+            <button class="sub-btn" id="stopTimerButton">정지</button>
+            <button class="sub-btn" id="resetTimerButton">리셋</button>
+          </div>
+
+          <div id="timerDisplay">00:00</div>
+          <div id="timerPraise"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="celebrationOverlay" class="celebration-overlay"></div>
 
   <script src="storage.js"></script>
   <script src="explorers.js"></script>
