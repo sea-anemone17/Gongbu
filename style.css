@@ -25,6 +25,9 @@
   --danger-bg: #ffe8ee;
   --danger-text: #b14466;
 
+  --gold-1: #ffd76a;
+  --gold-2: #ffb347;
+
   --shadow-main: 0 20px 50px rgba(111, 96, 180, 0.12);
   --shadow-btn: 0 12px 28px rgba(118, 103, 203, 0.24);
   --shadow-soft: 0 8px 22px rgba(111, 96, 180, 0.08);
@@ -91,9 +94,7 @@ body {
   margin-top: 14px;
 }
 
-h1,
-h2,
-h3 {
+h1, h2, h3 {
   margin-top: 0;
   color: var(--text-main);
 }
@@ -339,7 +340,6 @@ button:disabled {
 }
 
 .log-list,
-.quest-list,
 .title-list,
 .micro-list {
   display: grid;
@@ -403,23 +403,6 @@ button:disabled {
   gap: 14px;
 }
 
-.timer-finished {
-  animation: timerGlow 0.9s ease;
-}
-
-.praise-burst {
-  animation: praiseBurst 0.7s ease;
-  color: #5a4fcf !important;
-}
-
-.gold-text {
-  background: linear-gradient(135deg, #ffdb72, #ffb347, #fff2b8);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-  color: transparent;
-}
-
 .celebration-overlay {
   position: fixed;
   inset: 0;
@@ -436,6 +419,23 @@ button:disabled {
   background: radial-gradient(circle, #fff 0%, #ffe48d 45%, transparent 70%);
   animation: sparkleFly 1.2s ease-out forwards;
   opacity: 0;
+}
+
+.gold-text {
+  background: linear-gradient(135deg, #ffdb72, #ffb347, #fff2b8);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  color: transparent;
+}
+
+.timer-finished {
+  animation: timerGlow 0.9s ease;
+}
+
+.praise-burst {
+  animation: praiseBurst 0.7s ease;
+  color: #5a4fcf !important;
 }
 
 @keyframes timerGlow {
