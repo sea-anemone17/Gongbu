@@ -102,7 +102,15 @@ body {
 .card .log-list,
 .card .title-list,
 .card .micro-list {
-  margin-top: 4px;
+  margin-top: 8px;
+}
+
+.card > h2 + * {
+  margin-top: 10px;
+}
+
+#todaySummary {
+  margin-top: 8px;
 }
 
 h1,
