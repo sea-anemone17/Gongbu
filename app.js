@@ -17,6 +17,7 @@ function renderAll() {
   renderSafe(renderMicro);
   renderSafe(renderReviewList);
   renderSafe(renderFailureStats);
+  renderSafe(renderTodaySummary);
 }
 
 function bindEvents() {
