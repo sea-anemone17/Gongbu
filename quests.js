@@ -118,6 +118,42 @@ function deleteQuest(questId) {
   renderAll();
 }
 
+function getTodayDateKey() {
+  const now = new Date();
+  const y = now.getFullYear();
+  const m = String(now.getMonth() + 1).padStart(2, "0");
+  const d = String(now.getDate()).padStart(2, "0");
+  return `${y}-${m}-${d}`;
+}
+
+function addDaysToDateKey(baseDateKey, days) {
+  const date = new Date(baseDateKey);
+  date.setDate(date.getDate() + days);
+  const y = date.getFullYear();
+  const m = String(date.getMonth() + 1).padStart(2, "0");
+  const d = String(date.getDate()).padStart(2, "0");
+  return `${y}-${m}-${d}`;
+}
+
+function createReviewSchedule(current, quest, sourceLogId) {
+  const today = getTodayDateKey();
+  const reviewDays = [1, 3, 7];
+
+  reviewDays.forEach(days => {
+    current.reviews.push({
+      id: makeId("review"),
+      sourceQuestId: quest.id,
+      sourceLogId,
+      title: `${quest.title} 복습`,
+      subjectId: quest.subjectId,
+      subjectName: quest.subjectName,
+      reviewType: "회상",
+      reviewDate: addDaysToDateKey(today, days),
+      status: "pending"
+    });
+  });
+}
+
 function completeQuest(questId) {
   const data = loadAppData();
   const current = getCurrentExplorer(data);
@@ -146,13 +182,18 @@ function completeQuest(questId) {
   }
 
   const reasonPrompt =
-    "원인을 짧게 적어 주세요.\n예: 개념 이해가 깊어짐 / 적용이 불안정함 / 조건 해석이 흔들림 / 오답 복구 성공";
+    "실패/막힘 유형을 입력해 주세요.\n예: 개념 누락 / 조건 해석이 흔들림 / 적용이 불안정함 / 계산 실수 / 시간 압박";
   const blockReason = prompt(reasonPrompt, "개념 이해가 깊어짐");
   if (blockReason === null) return;
 
+  const selfExplanation = prompt(
+    "자기설명: 이 개념을 한 문장으로 설명하면?",
+    ""
+  ) || "";
+
   const reflection = prompt("짧은 메모를 남길까요?", "") || "";
 
-  current.logs.unshift({
+  const newLog = {
     id: makeId("log"),
     date: new Date().toLocaleString(),
     questTitle: quest.title,
@@ -162,6 +203,77 @@ function completeQuest(questId) {
     difficulty: quest.difficulty,
     resultRank,
     blockReason,
+    selfExplanation,
+    reflection
+  };
+
+  current.logs.unshift(newLog);
+
+  if (current.logs.length > 30) {
+    current.logs.pop();
+  }
+
+  createReviewSchedule(current, quest, newLog.id);
+  applyGrowth(current, resultRank, quest.type, quest.subjectId, blockReason);
+
+  saveAppData(data);
+  renderAll();
+}
+
+function completeReview(reviewId) {
+  const data = loadAppData();
+  const current = getCurrentExplorer(data);
+  if (!current) return;
+
+  const review = current.reviews.find(r => r.id === reviewId);
+  if (!review) return;
+
+  const resultPrompt =
+    "회상 퀘스트 결과를 입력하세요:\n1. 대성공\n2. 성공\n3. 부분 성공\n4. 실패\n5. 대실패";
+  const resultInput = prompt(resultPrompt, "2");
+  if (resultInput === null) return;
+
+  const resultMap = {
+    "1": "🌟 대성공",
+    "2": "✅ 성공",
+    "3": "☑️ 부분 성공",
+    "4": "❌ 실패",
+    "5": "💥 대실패"
+  };
+
+  const resultRank = resultMap[resultInput];
+  if (!resultRank) {
+    alert("1~5 중 하나를 입력해 주세요.");
+    return;
+  }
+
+  const blockReason = prompt(
+    "실패/막힘 유형을 입력해 주세요.\n예: 조건 해석이 흔들림 / 적용이 불안정함 / 계산 실수 / 개념 누락",
+    "적용이 불안정함"
+  );
+  if (blockReason === null) return;
+
+  const selfExplanation = prompt(
+    "자기설명: 이 개념을 한 문장으로 설명하면?",
+    ""
+  ) || "";
+
+  const reflection = prompt(
+    "짧은 복습 메모를 남길까요?",
+    ""
+  ) || "";
+
+  current.logs.unshift({
+    id: makeId("log"),
+    date: new Date().toLocaleString(),
+    questTitle: review.title,
+    subjectId: review.subjectId,
+    subjectName: review.subjectName,
+    questType: "회상",
+    difficulty: "복습",
+    resultRank,
+    blockReason,
+    selfExplanation,
     reflection
   });
 
@@ -169,7 +281,9 @@ function completeQuest(questId) {
     current.logs.pop();
   }
 
-  applyGrowth(current, resultRank, quest.type, quest.subjectId, blockReason);
+  review.status = "done";
+
+  applyGrowth(current, resultRank, "회상", review.subjectId, blockReason);
   saveAppData(data);
   renderAll();
 }
