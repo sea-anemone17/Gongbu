@@ -74,6 +74,7 @@ function createExplorer(name, alias = "", theme = "") {
     quests: [],
     logs: [],
     microLogs: [],
+    reviews: [],
     titles: [],
     growth: defaultGrowth(),
     timer: defaultTimer()
@@ -98,6 +99,7 @@ function normalizeExplorer(explorer) {
     quests: Array.isArray(explorer.quests) ? explorer.quests : [],
     logs: Array.isArray(explorer.logs) ? explorer.logs : [],
     microLogs: Array.isArray(explorer.microLogs) ? explorer.microLogs : [],
+    reviews: Array.isArray(explorer.reviews) ? explorer.reviews : [],
     titles: Array.isArray(explorer.titles) ? explorer.titles : [],
     growth: {
       ...defaultGrowth(),
