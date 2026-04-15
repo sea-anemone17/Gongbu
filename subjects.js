@@ -18,6 +18,12 @@ function renderSubjectList() {
     return;
   }
 
+  subjectSelect.innerHTML =
+    `<option value="">과목을 선택하세요</option>` +
+    current.subjects.map(subject => `
+      <option value="${subject.id}">${subject.name}</option>
+    `).join("");
+
   subjectList.innerHTML = current.subjects.map(subject => `
     <div class="item">
       <div class="item-title">${subject.name}</div>
@@ -33,17 +39,12 @@ function renderSubjectList() {
       </div>
     </div>
   `).join("");
-
-  subjectSelect.innerHTML =
-    `<option value="">과목을 선택하세요</option>` +
-    current.subjects.map(subject => `
-      <option value="${subject.id}">${subject.name}</option>
-    `).join("");
 }
 
 function addSubject() {
   const input = document.getElementById("subjectName");
-  const name = input.value.trim();
+  const name = input?.value.trim();
+
   if (!name) {
     alert("과목 이름을 입력해 주세요.");
     return;
@@ -51,24 +52,45 @@ function addSubject() {
 
   const data = loadAppData();
   const current = getCurrentExplorer(data);
+
   if (!current) {
     alert("먼저 탐사자를 선택해 주세요.");
+    return;
+  }
+
+  const alreadyExists = current.subjects.some(
+    subject => subject.name.trim().toLowerCase() === name.toLowerCase()
+  );
+
+  if (alreadyExists) {
+    alert("같은 이름의 과목이 이미 있습니다.");
     return;
   }
 
   current.subjects.push(createSubject(name));
   saveAppData(data);
 
-  input.value = "";
+  if (input) input.value = "";
   renderAll();
 }
 
 function deleteSubject(subjectId) {
   const data = loadAppData();
   const current = getCurrentExplorer(data);
+
   if (!current) return;
 
+  const target = current.subjects.find(subject => subject.id === subjectId);
+  if (!target) return;
+
+  const ok = confirm(`${target.name} 과목을 삭제할까요?`);
+  if (!ok) return;
+
   current.subjects = current.subjects.filter(subject => subject.id !== subjectId);
+
+  // 해당 과목에 연결된 퀘스트도 같이 삭제
+  current.quests = current.quests.filter(quest => quest.subjectId !== subjectId);
+
   saveAppData(data);
   renderAll();
 }
