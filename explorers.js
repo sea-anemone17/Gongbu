@@ -11,17 +11,6 @@ function renderExplorerList() {
     return;
   }
 
-  explorerList.innerHTML = data.explorers.map(exp => `
-    <div class="item">
-      <div class="item-title">${exp.name}</div>
-      <div class="muted">${exp.alias || "별칭 없음"} / ${exp.theme || "테마 없음"}</div>
-      <div class="button-row" style="margin-top:10px;">
-        <button class="sub-btn" onclick="selectExplorer('${exp.id}')">선택</button>
-        <button class="danger-btn" onclick="deleteExplorer('${exp.id}')">삭제</button>
-      </div>
-    </div>
-  `).join("");
-
   explorerSelect.innerHTML =
     `<option value="">탐사자를 선택하세요</option>` +
     data.explorers.map(exp => `
@@ -29,6 +18,19 @@ function renderExplorerList() {
         ${exp.name}
       </option>
     `).join("");
+
+  explorerList.innerHTML = data.explorers.map(exp => `
+    <div class="item">
+      <div class="item-title">${exp.name}</div>
+      <div class="muted">
+        ${exp.alias || "별칭 없음"}${exp.theme ? ` / ${exp.theme}` : ""}
+      </div>
+      <div class="button-row" style="margin-top:10px;">
+        <button class="sub-btn" onclick="selectExplorer('${exp.id}')">선택</button>
+        <button class="danger-btn" onclick="deleteExplorer('${exp.id}')">삭제</button>
+      </div>
+    </div>
+  `).join("");
 }
 
 function addExplorer() {
@@ -36,9 +38,9 @@ function addExplorer() {
   const aliasInput = document.getElementById("explorerAlias");
   const themeInput = document.getElementById("explorerTheme");
 
-  const name = nameInput.value.trim();
-  const alias = aliasInput.value.trim();
-  const theme = themeInput.value.trim();
+  const name = nameInput?.value.trim();
+  const alias = aliasInput?.value.trim() || "";
+  const theme = themeInput?.value.trim() || "";
 
   if (!name) {
     alert("탐사자 이름을 입력해 주세요.");
@@ -46,18 +48,16 @@ function addExplorer() {
   }
 
   const data = loadAppData();
-  const newExplorer = createExplorer(name, alias, theme);
+  const explorer = createExplorer(name, alias, theme);
 
-  data.explorers.unshift(newExplorer);
-  if (!data.currentExplorerId) {
-    data.currentExplorerId = newExplorer.id;
-  }
+  data.explorers.unshift(explorer);
+  data.currentExplorerId = explorer.id;
 
   saveAppData(data);
 
-  nameInput.value = "";
-  aliasInput.value = "";
-  themeInput.value = "";
+  if (nameInput) nameInput.value = "";
+  if (aliasInput) aliasInput.value = "";
+  if (themeInput) themeInput.value = "";
 
   renderAll();
 }
@@ -71,10 +71,10 @@ function selectExplorer(explorerId) {
 
 function deleteExplorer(explorerId) {
   const data = loadAppData();
-  const target = data.explorers.find(exp => exp.id === explorerId);
-  if (!target) return;
+  const explorer = data.explorers.find(exp => exp.id === explorerId);
+  if (!explorer) return;
 
-  const ok = confirm(`${target.name} 탐사자를 삭제할까요?`);
+  const ok = confirm(`${explorer.name} 탐사자를 삭제할까요?`);
   if (!ok) return;
 
   data.explorers = data.explorers.filter(exp => exp.id !== explorerId);
@@ -85,4 +85,58 @@ function deleteExplorer(explorerId) {
 
   saveAppData(data);
   renderAll();
+}
+
+function saveCharacter() {
+  const data = loadAppData();
+  const current = getCurrentExplorer(data);
+
+  if (!current) {
+    alert("먼저 탐사자를 선택해 주세요.");
+    return;
+  }
+
+  const name = document.getElementById("explorerName")?.value.trim() || current.name;
+  const alias = document.getElementById("explorerAlias")?.value.trim() || "";
+  const theme = document.getElementById("explorerTheme")?.value.trim() || "";
+
+  current.name = name;
+  current.alias = alias;
+  current.theme = theme;
+
+  saveAppData(data);
+  renderAll();
+}
+
+function renderCharacter() {
+  const data = loadAppData();
+  const current = getCurrentExplorer(data);
+
+  const preview = document.getElementById("characterPreview");
+  const nameInput = document.getElementById("explorerName");
+  const aliasInput = document.getElementById("explorerAlias");
+  const themeInput = document.getElementById("explorerTheme");
+
+  if (!current) {
+    if (preview) preview.innerHTML = "아직 선택된 탐사자가 없습니다.";
+    return;
+  }
+
+  if (preview) {
+    preview.innerHTML = `
+      이름: ${current.name}<br>
+      별칭: ${current.alias || "없음"}<br>
+      테마: ${current.theme || "없음"}
+    `;
+  }
+
+  if (nameInput && document.activeElement !== nameInput) {
+    nameInput.value = current.name || "";
+  }
+  if (aliasInput && document.activeElement !== aliasInput) {
+    aliasInput.value = current.alias || "";
+  }
+  if (themeInput && document.activeElement !== themeInput) {
+    themeInput.value = current.theme || "";
+  }
 }
