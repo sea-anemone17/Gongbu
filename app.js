@@ -6,6 +6,7 @@ function renderSafe(fn) {
 
 function renderAll() {
   renderSafe(renderExplorerList);
+  renderSafe(renderCharacter);
   renderSafe(renderSubjectList);
   renderSafe(renderQuestList);
   renderSafe(renderQuestSelect);
@@ -14,7 +15,6 @@ function renderAll() {
   renderSafe(renderLogs);
   renderSafe(renderTitles);
   renderSafe(renderMicro);
-  renderSafe(renderCharacter);
 }
 
 function bindEvents() {
@@ -32,8 +32,6 @@ function bindEvents() {
   document.getElementById("startTimerButton")?.addEventListener("click", startTimer);
   document.getElementById("stopTimerButton")?.addEventListener("click", stopTimer);
   document.getElementById("resetTimerButton")?.addEventListener("click", resetTimer);
-
-  document.getElementById("saveCharacterButton")?.addEventListener("click", saveCharacter);
 }
 
 function initApp() {
