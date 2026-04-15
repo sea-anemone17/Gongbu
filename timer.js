@@ -82,38 +82,16 @@ function grantTimerReward() {
   const current = getCurrentExplorer(data);
   if (!current) return;
 
+  // 타이머 완료 보상: 지속력만 증가
   current.growth.지속력 += 2;
   clampExplorerGrowth(current);
 
-  current.logs.unshift({
-    id: makeId("timerlog"),
-    date: new Date().toLocaleString(),
-    questTitle: "타이머 완료",
-    subjectId: null,
-    subjectName: "집중",
-    questType: "타이머",
-    difficulty: "보통",
-    resultRank: "⏳ 완료",
-    blockReason: "집중 시간 완료",
-    selfExplanation: "",
-    reflection: "타이머를 끝까지 유지했다"
-  });
-
-  if (current.logs.length > 30) {
-    current.logs.pop();
-  }
-
-  current.microLogs.unshift({
-    id: makeId("micro"),
-    name: "타이머 완료",
-    date: new Date().toLocaleString()
-  });
-
-  if (current.microLogs.length > 10) {
-    current.microLogs.pop();
-  }
-
+  // 칭호 갱신
   current.titles = getUnlockedTitles(current);
+
+  // ❌ 로그북에 타이머 기록 남기지 않음
+  // ❌ 응급 기록에도 타이머 남기지 않음
+
   saveAppData(data);
 }
 
