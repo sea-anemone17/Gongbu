@@ -1,0 +1,1097 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>학습 탐사록</title>
+  <style>
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
+      background: linear-gradient(135deg, #f7f2ff, #edf6ff, #fff8fb);
+      color: #2f3140;
+      min-height: 100vh;
+      padding: 24px;
+    }
+
+    .container {
+      max-width: 1100px;
+      margin: 0 auto;
+      display: grid;
+      gap: 20px;
+    }
+
+    .card {
+      background: rgba(255, 255, 255, 0.92);
+      border: 1px solid #e7e9f3;
+      border-radius: 24px;
+      padding: 24px;
+      box-shadow: 0 18px 42px rgba(111, 96, 180, 0.12);
+    }
+
+    h1, h2, h3 {
+      margin-top: 0;
+    }
+
+    h1 {
+      margin-bottom: 8px;
+      font-size: 2rem;
+    }
+
+    .subtitle {
+      margin: 0;
+      color: #676c80;
+      line-height: 1.6;
+      font-size: 0.96rem;
+    }
+
+    .grid {
+      display: grid;
+      gap: 16px;
+    }
+
+    .grid-2 {
+      display: grid;
+      gap: 16px;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .grid-3 {
+      display: grid;
+      gap: 16px;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    .grid-4 {
+      display: grid;
+      gap: 16px;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+
+    .field {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    label {
+      font-weight: 700;
+      font-size: 0.95rem;
+    }
+
+    input, textarea, select {
+      width: 100%;
+      padding: 14px 16px;
+      border: 1px solid #d9ddec;
+      border-radius: 16px;
+      font-size: 1rem;
+      outline: none;
+      background: white;
+      color: #2f3140;
+    }
+
+    textarea {
+      resize: vertical;
+      min-height: 90px;
+    }
+
+    input:focus, textarea:focus, select:focus {
+      border-color: #8d7cff;
+      box-shadow: 0 0 0 4px rgba(141, 124, 255, 0.12);
+    }
+
+    .button-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    button {
+      border: none;
+      border-radius: 999px;
+      padding: 13px 18px;
+      font-size: 0.95rem;
+      font-weight: 800;
+      cursor: pointer;
+      transition: transform 0.15s ease;
+    }
+
+    button:hover {
+      transform: translateY(-1px);
+    }
+
+    .main-btn {
+      background: linear-gradient(135deg, #8c7cff, #67a8ff);
+      color: white;
+      box-shadow: 0 10px 24px rgba(118, 103, 203, 0.24);
+    }
+
+    .sub-btn {
+      background: #eef1fb;
+      color: #50566d;
+    }
+
+    .danger-btn {
+      background: #ffe8ee;
+      color: #b14466;
+    }
+
+    .badge-wrap {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .badge {
+      background: #f1f4ff;
+      color: #525a80;
+      border-radius: 999px;
+      padding: 8px 12px;
+      font-size: 0.88rem;
+      font-weight: 800;
+    }
+
+    .growth-grid {
+      display: grid;
+      gap: 14px;
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+    }
+
+    .growth-card {
+      background: linear-gradient(180deg, #ffffff, #f8f9ff);
+      border: 1px solid #e4e8f5;
+      border-radius: 18px;
+      padding: 14px;
+      text-align: center;
+    }
+
+    .growth-name {
+      font-size: 0.92rem;
+      font-weight: 700;
+      color: #61667a;
+      margin-bottom: 8px;
+    }
+
+    .growth-value {
+      font-size: 1.5rem;
+      font-weight: 900;
+      margin-bottom: 10px;
+    }
+
+    .bar {
+      width: 100%;
+      height: 10px;
+      background: #eceffa;
+      border-radius: 999px;
+      overflow: hidden;
+    }
+
+    .bar-fill {
+      height: 100%;
+      background: linear-gradient(135deg, #8c7cff, #67a8ff);
+      border-radius: 999px;
+    }
+
+    .log-list, .quest-list, .title-list, .micro-list {
+      display: grid;
+      gap: 12px;
+    }
+
+    .item {
+      background: #f8f9ff;
+      border: 1px solid #e5e8f4;
+      border-radius: 18px;
+      padding: 14px 16px;
+      line-height: 1.6;
+    }
+
+    .item-title {
+      font-weight: 800;
+      margin-bottom: 4px;
+    }
+
+    .muted {
+      color: #70758a;
+      font-size: 0.92rem;
+    }
+
+    .empty {
+      color: #7b8195;
+      font-size: 0.94rem;
+    }
+
+    .today-box {
+      background: linear-gradient(135deg, #ffffff, #f7f8ff);
+      border: 1px solid #e4e7f2;
+      border-radius: 20px;
+      padding: 18px;
+      margin-top: 14px;
+    }
+
+    .small-title {
+      font-size: 0.95rem;
+      font-weight: 800;
+      margin-bottom: 8px;
+    }
+
+    .pill-button {
+      border-radius: 14px;
+      background: #f2f4ff;
+      color: #4f567a;
+      padding: 10px 12px;
+      font-size: 0.9rem;
+      font-weight: 700;
+    }
+
+    .pill-button:hover {
+      transform: translateY(-1px);
+    }
+
+    .hero {
+      display: grid;
+      gap: 16px;
+      grid-template-columns: 1.3fr 0.7fr;
+      align-items: start;
+    }
+
+    .quote-box {
+      background: linear-gradient(135deg, #fcfcff, #f5f7ff);
+      border: 1px solid #e8ebf6;
+      border-radius: 18px;
+      padding: 16px;
+    }
+
+    .stats-mini {
+      display: grid;
+      gap: 10px;
+    }
+
+    .stats-mini-item {
+      background: #f8f9ff;
+      border: 1px solid #e7e9f5;
+      border-radius: 16px;
+      padding: 12px;
+    }
+
+    .mono {
+      white-space: pre-wrap;
+      word-break: break-word;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      font-size: 0.88rem;
+      background: #f7f8ff;
+      border: 1px solid #e6e8f3;
+      border-radius: 16px;
+      padding: 14px;
+    }
+
+    @media (max-width: 980px) {
+      .growth-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .grid-4 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .grid-3 { grid-template-columns: 1fr; }
+      .grid-2 { grid-template-columns: 1fr; }
+      .hero { grid-template-columns: 1fr; }
+    }
+
+    @media (max-width: 640px) {
+      body { padding: 14px; }
+      .card { padding: 18px; border-radius: 20px; }
+      .growth-grid { grid-template-columns: 1fr; }
+      .grid-4 { grid-template-columns: 1fr; }
+      .button-row { flex-direction: column; }
+      button { width: 100%; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="card">
+      <h1>📖 학습 탐사록</h1>
+      <p class="subtitle">
+        공부를 퀘스트처럼 수행하고, 판정처럼 기록하며, 성장과 복구를 추적하는 Hazel 전용 학습 TRPG 도구입니다.
+      </p>
+
+      <div class="hero">
+        <div class="today-box">
+          <div class="small-title">오늘의 접속</div>
+          <div class="grid">
+            <div class="field">
+              <label for="todayGoal">오늘의 한 줄 목표</label>
+              <input id="todayGoal" type="text" placeholder="예: 로그를 외우는 게 아니라, 왜 필요한지 다시 붙잡는 날">
+            </div>
+
+            <div class="grid-3">
+              <div class="field">
+                <label for="bodyState">몸 상태</label>
+                <select id="bodyState">
+                  <option value="낮음">낮음</option>
+                  <option value="보통">보통</option>
+                  <option value="괜찮음">괜찮음</option>
+                </select>
+              </div>
+              <div class="field">
+                <label for="noiseState">정신 소음</label>
+                <select id="noiseState">
+                  <option value="높음">높음</option>
+                  <option value="보통">보통</option>
+                  <option value="낮음">낮음</option>
+                </select>
+              </div>
+              <div class="field">
+                <label for="dayMode">오늘 모드</label>
+                <select id="dayMode">
+                  <option value="가볍게">가볍게</option>
+                  <option value="집중">집중</option>
+                  <option value="버티기">버티기</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="button-row">
+              <button class="main-btn" id="saveGoalButton" type="button">오늘 상태 저장</button>
+              <button class="sub-btn" id="clearGoalButton" type="button">오늘 상태 지우기</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="stats-mini">
+          <div class="stats-mini-item">
+            <div class="small-title">탐사자 정보</div>
+            <div id="characterPreview" class="muted">아직 설정되지 않았습니다.</div>
+          </div>
+          <div class="stats-mini-item">
+            <div class="small-title">현재 칭호</div>
+            <div id="currentTitles" class="badge-wrap">
+              <span class="badge">아직 없음</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>🧍 탐사자 시트</h2>
+      <div class="grid-3">
+        <div class="field">
+          <label for="characterName">이름</label>
+          <input id="characterName" type="text" placeholder="예: Hazel">
+        </div>
+        <div class="field">
+          <label for="characterAlias">별칭</label>
+          <input id="characterAlias" type="text" placeholder="예: 로그 해석자">
+        </div>
+        <div class="field">
+          <label for="characterTheme">현재 테마 문장</label>
+          <input id="characterTheme" type="text" placeholder="예: 의미를 찾아 구조를 복원하는 탐사자">
+        </div>
+      </div>
+      <div class="button-row" style="margin-top:14px;">
+        <button class="main-btn" id="saveCharacterButton" type="button">탐사자 저장</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>🚑 응급 퀘스트</h2>
+      <p class="subtitle">너무 힘들 때는 거대한 공부 대신 아주 작은 복구 행동으로 연결합니다.</p>
+      <div class="button-row">
+        <button class="pill-button" onclick="runMicroQuest('개념 한 줄 읽기')">개념 한 줄 읽기</button>
+        <button class="pill-button" onclick="runMicroQuest('오답 하나만 분류하기')">오답 하나만 분류하기</button>
+        <button class="pill-button" onclick="runMicroQuest('예제 하나 다시 보기')">예제 하나 다시 보기</button>
+        <button class="pill-button" onclick="runMicroQuest('노트 한 줄 쓰기')">노트 한 줄 쓰기</button>
+        <button class="pill-button" onclick="runMicroQuest('문제 조건만 해석하기')">문제 조건만 해석하기</button>
+      </div>
+      <div class="micro-list" id="microList" style="margin-top:16px;">
+        <div class="empty">아직 응급 퀘스트 기록이 없습니다.</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>🧭 퀘스트 등록</h2>
+      <div class="grid">
+        <div class="field">
+          <label for="questTitle">퀘스트 이름</label>
+          <input id="questTitle" type="text" placeholder="예: 지수 법칙 예제 3개 분석하기">
+        </div>
+
+        <div class="grid-4">
+          <div class="field">
+            <label for="subject">과목</label>
+            <select id="subject">
+              <option value="수학">수학</option>
+              <option value="영어">영어</option>
+              <option value="국어">국어</option>
+              <option value="사회">사회</option>
+              <option value="과학">과학</option>
+              <option value="기타">기타</option>
+            </select>
+          </div>
+
+          <div class="field">
+            <label for="questType">퀘스트 유형</label>
+            <select id="questType">
+              <option value="탐사">탐사 퀘스트</option>
+              <option value="해석">해석 퀘스트</option>
+              <option value="판정">판정 퀘스트</option>
+              <option value="복구">복구 퀘스트</option>
+            </select>
+          </div>
+
+          <div class="field">
+            <label for="difficulty">난이도</label>
+            <select id="difficulty">
+              <option value="낮음">낮음</option>
+              <option value="보통">보통</option>
+              <option value="높음">높음</option>
+              <option value="보스전">보스전</option>
+            </select>
+          </div>
+
+          <div class="field">
+            <label for="estimatedTime">예상 시간</label>
+            <select id="estimatedTime">
+              <option value="5분">5분</option>
+              <option value="10분">10분</option>
+              <option value="20분">20분</option>
+              <option value="30분 이상">30분 이상</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="field">
+          <label for="questMemo">메모</label>
+          <textarea id="questMemo" placeholder="예: 개념은 아는데 조건 해석이 흔들린다 / 설명 가능한 수준까지 가고 싶다"></textarea>
+        </div>
+
+        <div class="button-row">
+          <button class="main-btn" id="addQuestButton" type="button">퀘스트 저장</button>
+          <button class="sub-btn" id="clearQuestButton" type="button">입력칸 비우기</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>🎲 퀘스트 판정</h2>
+      <div class="grid">
+        <div class="field">
+          <label for="questSelect">판정할 퀘스트 선택</label>
+          <select id="questSelect">
+            <option value="">퀘스트를 선택하세요</option>
+          </select>
+        </div>
+
+        <div class="grid-2">
+          <div class="field">
+            <label for="resultRank">판정 결과</label>
+            <select id="resultRank">
+              <option value="🌟 대성공">🌟 대성공</option>
+              <option value="✅ 성공">✅ 성공</option>
+              <option value="☑️ 부분 성공">☑️ 부분 성공</option>
+              <option value="❌ 실패">❌ 실패</option>
+              <option value="💥 대실패">💥 대실패</option>
+            </select>
+          </div>
+
+          <div class="field">
+            <label for="blockReason">막힘/원인</label>
+            <select id="blockReason">
+              <option value="개념 이해가 깊어짐">개념 이해가 깊어짐</option>
+              <option value="설명 가능해짐">설명 가능해짐</option>
+              <option value="적용이 불안정함">적용이 불안정함</option>
+              <option value="조건 해석이 흔들림">조건 해석이 흔들림</option>
+              <option value="계산/처리 실수">계산/처리 실수</option>
+              <option value="시간 압박">시간 압박</option>
+              <option value="자동화 부족">자동화 부족</option>
+              <option value="전제부터 다시 봐야 함">전제부터 다시 봐야 함</option>
+              <option value="오답 복구 성공">오답 복구 성공</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="field">
+          <label for="reflection">짧은 해석</label>
+          <textarea id="reflection" placeholder="예: 개념 자체는 이해했지만, 낯선 조건에서 적용력이 흔들렸다"></textarea>
+        </div>
+
+        <div class="button-row">
+          <button class="main-btn" id="logResultButton" type="button">판정 기록하기</button>
+          <button class="sub-btn" id="clearLogButton" type="button">판정 입력 비우기</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>📈 성장치</h2>
+      <div class="growth-grid" id="growthGrid"></div>
+      <div class="button-row" style="margin-top:16px;">
+        <button class="sub-btn" id="resetGrowthButton" type="button">성장치 초기화</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>🏅 칭호</h2>
+      <div class="title-list" id="titleList">
+        <div class="empty">아직 해금된 칭호가 없습니다.</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>🗂 퀘스트 목록</h2>
+      <div class="quest-list" id="questList">
+        <div class="empty">아직 저장된 퀘스트가 없습니다.</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>📚 로그북</h2>
+      <div class="log-list" id="logList">
+        <div class="empty">아직 기록된 로그가 없습니다.</div>
+      </div>
+      <div class="button-row" style="margin-top:16px;">
+        <button class="danger-btn" id="clearLogsButton" type="button">로그 전체 삭제</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>💾 백업 / 불러오기</h2>
+      <div class="grid">
+        <div class="button-row">
+          <button class="main-btn" id="exportButton" type="button">데이터 내보내기</button>
+        </div>
+        <div class="field">
+          <label for="importBox">불러오기용 JSON</label>
+          <textarea id="importBox" placeholder="여기에 JSON을 붙여넣고 아래 버튼을 누르세요."></textarea>
+        </div>
+        <div class="button-row">
+          <button class="sub-btn" id="importButton" type="button">데이터 불러오기</button>
+        </div>
+        <div class="field">
+          <label>내보낸 데이터 미리보기</label>
+          <div class="mono" id="exportPreview">아직 내보낸 데이터가 없습니다.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const GOAL_KEY = "hazel_study_goal_v2";
+    const QUESTS_KEY = "hazel_study_quests_v2";
+    const LOGS_KEY = "hazel_study_logs_v2";
+    const GROWTH_KEY = "hazel_study_growth_v2";
+    const CHARACTER_KEY = "hazel_study_character_v2";
+    const MICRO_KEY = "hazel_study_micro_v2";
+
+    const defaultGrowth = {
+      이해력: 10,
+      구조화력: 10,
+      적용력: 10,
+      복구력: 10,
+      지속력: 10
+    };
+
+    function loadData(key, fallback) {
+      try {
+        const raw = localStorage.getItem(key);
+        if (!raw) return fallback;
+        return JSON.parse(raw);
+      } catch (error) {
+        return fallback;
+      }
+    }
+
+    function saveData(key, value) {
+      localStorage.setItem(key, JSON.stringify(value));
+    }
+
+    function getGoal() {
+      return loadData(GOAL_KEY, {
+        text: "",
+        bodyState: "보통",
+        noiseState: "보통",
+        dayMode: "가볍게"
+      });
+    }
+
+    function getQuests() {
+      return loadData(QUESTS_KEY, []);
+    }
+
+    function getLogs() {
+      return loadData(LOGS_KEY, []);
+    }
+
+    function getGrowth() {
+      return loadData(GROWTH_KEY, defaultGrowth);
+    }
+
+    function getCharacter() {
+      return loadData(CHARACTER_KEY, {
+        name: "",
+        alias: "",
+        theme: ""
+      });
+    }
+
+    function getMicro() {
+      return loadData(MICRO_KEY, []);
+    }
+
+    function saveGoal() {
+      const goal = {
+        text: document.getElementById("todayGoal").value.trim(),
+        bodyState: document.getElementById("bodyState").value,
+        noiseState: document.getElementById("noiseState").value,
+        dayMode: document.getElementById("dayMode").value
+      };
+      saveData(GOAL_KEY, goal);
+      alert("오늘의 접속 상태를 저장했습니다.");
+    }
+
+    function clearGoal() {
+      const goal = {
+        text: "",
+        bodyState: "보통",
+        noiseState: "보통",
+        dayMode: "가볍게"
+      };
+      saveData(GOAL_KEY, goal);
+      renderGoal();
+    }
+
+    function renderGoal() {
+      const goal = getGoal();
+      document.getElementById("todayGoal").value = goal.text || "";
+      document.getElementById("bodyState").value = goal.bodyState || "보통";
+      document.getElementById("noiseState").value = goal.noiseState || "보통";
+      document.getElementById("dayMode").value = goal.dayMode || "가볍게";
+    }
+
+    function saveCharacter() {
+      const character = {
+        name: document.getElementById("characterName").value.trim(),
+        alias: document.getElementById("characterAlias").value.trim(),
+        theme: document.getElementById("characterTheme").value.trim()
+      };
+      saveData(CHARACTER_KEY, character);
+      renderCharacter();
+      alert("탐사자 시트를 저장했습니다.");
+    }
+
+    function renderCharacter() {
+      const character = getCharacter();
+
+      document.getElementById("characterName").value = character.name || "";
+      document.getElementById("characterAlias").value = character.alias || "";
+      document.getElementById("characterTheme").value = character.theme || "";
+
+      const preview = document.getElementById("characterPreview");
+      const lines = [];
+
+      if (character.name) lines.push("이름: " + character.name);
+      if (character.alias) lines.push("별칭: " + character.alias);
+      if (character.theme) lines.push("테마: " + character.theme);
+
+      preview.innerHTML = lines.length ? lines.join("<br>") : "아직 설정되지 않았습니다.";
+    }
+
+    function clearQuestInputs() {
+      document.getElementById("questTitle").value = "";
+      document.getElementById("questMemo").value = "";
+      document.getElementById("subject").value = "수학";
+      document.getElementById("questType").value = "탐사";
+      document.getElementById("difficulty").value = "보통";
+      document.getElementById("estimatedTime").value = "10분";
+    }
+
+    function clearLogInputs() {
+      document.getElementById("resultRank").value = "🌟 대성공";
+      document.getElementById("blockReason").value = "개념 이해가 깊어짐";
+      document.getElementById("reflection").value = "";
+    }
+
+    function addQuest() {
+      const title = document.getElementById("questTitle").value.trim();
+      const subject = document.getElementById("subject").value;
+      const questType = document.getElementById("questType").value;
+      const difficulty = document.getElementById("difficulty").value;
+      const estimatedTime = document.getElementById("estimatedTime").value;
+      const memo = document.getElementById("questMemo").value.trim();
+
+      if (!title) {
+        alert("퀘스트 이름을 입력해 주세요.");
+        return;
+      }
+
+      const quests = getQuests();
+      quests.unshift({
+        id: Date.now(),
+        title,
+        subject,
+        questType,
+        difficulty,
+        estimatedTime,
+        memo
+      });
+
+      saveData(QUESTS_KEY, quests);
+      clearQuestInputs();
+      renderQuests();
+      renderQuestSelect();
+    }
+
+    function deleteQuest(id) {
+      const quests = getQuests().filter(q => q.id !== id);
+      saveData(QUESTS_KEY, quests);
+      renderQuests();
+      renderQuestSelect();
+    }
+
+    function renderQuests() {
+      const questList = document.getElementById("questList");
+      const quests = getQuests();
+
+      if (quests.length === 0) {
+        questList.innerHTML = '<div class="empty">아직 저장된 퀘스트가 없습니다.</div>';
+        return;
+      }
+
+      questList.innerHTML = quests.map(q => `
+        <div class="item">
+          <div class="item-title">${q.title}</div>
+          <div class="badge-wrap" style="margin-bottom:8px;">
+            <span class="badge">${q.subject}</span>
+            <span class="badge">${q.questType} 퀘스트</span>
+            <span class="badge">난이도 ${q.difficulty}</span>
+            <span class="badge">${q.estimatedTime}</span>
+          </div>
+          <div class="muted">${q.memo || "메모 없음"}</div>
+          <div class="button-row" style="margin-top:10px;">
+            <button class="sub-btn" type="button" onclick="deleteQuest(${q.id})">삭제</button>
+          </div>
+        </div>
+      `).join("");
+    }
+
+    function renderQuestSelect() {
+      const questSelect = document.getElementById("questSelect");
+      const quests = getQuests();
+
+      if (quests.length === 0) {
+        questSelect.innerHTML = '<option value="">퀘스트를 선택하세요</option>';
+        return;
+      }
+
+      questSelect.innerHTML =
+        '<option value="">퀘스트를 선택하세요</option>' +
+        quests.map(q => `<option value="${q.id}">${q.title} (${q.subject} / ${q.questType})</option>`).join("");
+    }
+
+    function updateGrowth(resultRank, blockReason, questType, isMicro = false) {
+      const growth = getGrowth();
+
+      if (isMicro) {
+        growth.지속력 += 2;
+        growth.복구력 += 1;
+      } else {
+        if (resultRank === "🌟 대성공") {
+          growth.이해력 += 3;
+          growth.구조화력 += 2;
+          growth.적용력 += 2;
+          growth.지속력 += 1;
+        } else if (resultRank === "✅ 성공") {
+          growth.이해력 += 2;
+          growth.적용력 += 1;
+          growth.지속력 += 1;
+        } else if (resultRank === "☑️ 부분 성공") {
+          growth.구조화력 += 1;
+          growth.지속력 += 1;
+        } else if (resultRank === "❌ 실패") {
+          growth.복구력 += 2;
+          growth.지속력 += 1;
+        } else if (resultRank === "💥 대실패") {
+          growth.복구력 += 3;
+        }
+
+        if (questType === "해석") growth.구조화력 += 2;
+        if (questType === "판정") growth.적용력 += 2;
+        if (questType === "복구") growth.복구력 += 2;
+        if (questType === "탐사") growth.이해력 += 1;
+
+        if (blockReason === "설명 가능해짐") growth.구조화력 += 2;
+        if (blockReason === "오답 복구 성공") growth.복구력 += 2;
+        if (blockReason === "자동화 부족") growth.지속력 += 1;
+        if (blockReason === "개념 이해가 깊어짐") growth.이해력 += 2;
+        if (blockReason === "적용이 불안정함") growth.적용력 += 1;
+      }
+
+      Object.keys(growth).forEach(key => {
+        if (growth[key] > 100) growth[key] = 100;
+      });
+
+      saveData(GROWTH_KEY, growth);
+      renderGrowth();
+      renderTitles();
+    }
+
+    function renderGrowth() {
+      const growthGrid = document.getElementById("growthGrid");
+      const growth = getGrowth();
+
+      growthGrid.innerHTML = Object.keys(growth).map(key => `
+        <div class="growth-card">
+          <div class="growth-name">${key}</div>
+          <div class="growth-value">${growth[key]}</div>
+          <div class="bar">
+            <div class="bar-fill" style="width:${growth[key]}%;"></div>
+          </div>
+        </div>
+      `).join("");
+    }
+
+    function logResult() {
+      const questId = document.getElementById("questSelect").value;
+      const resultRank = document.getElementById("resultRank").value;
+      const blockReason = document.getElementById("blockReason").value;
+      const reflection = document.getElementById("reflection").value.trim();
+
+      if (!questId) {
+        alert("퀘스트를 먼저 선택해 주세요.");
+        return;
+      }
+
+      const quests = getQuests();
+      const selectedQuest = quests.find(q => String(q.id) === String(questId));
+
+      if (!selectedQuest) {
+        alert("선택된 퀘스트를 찾을 수 없습니다.");
+        return;
+      }
+
+      const logs = getLogs();
+      logs.unshift({
+        id: Date.now(),
+        date: new Date().toLocaleString(),
+        questTitle: selectedQuest.title,
+        subject: selectedQuest.subject,
+        questType: selectedQuest.questType,
+        difficulty: selectedQuest.difficulty,
+        estimatedTime: selectedQuest.estimatedTime,
+        resultRank,
+        blockReason,
+        reflection
+      });
+
+      if (logs.length > 30) logs.pop();
+
+      saveData(LOGS_KEY, logs);
+      updateGrowth(resultRank, blockReason, selectedQuest.questType, false);
+      renderLogs();
+      clearLogInputs();
+    }
+
+    function renderLogs() {
+      const logList = document.getElementById("logList");
+      const logs = getLogs();
+
+      if (logs.length === 0) {
+        logList.innerHTML = '<div class="empty">아직 기록된 로그가 없습니다.</div>';
+        return;
+      }
+
+      logList.innerHTML = logs.map(log => `
+        <div class="item">
+          <div class="item-title">${log.resultRank} ${log.questTitle}</div>
+          <div class="badge-wrap" style="margin-bottom:8px;">
+            <span class="badge">${log.subject}</span>
+            <span class="badge">${log.questType} 퀘스트</span>
+            <span class="badge">난이도 ${log.difficulty}</span>
+            <span class="badge">${log.estimatedTime}</span>
+          </div>
+          <div><strong>막힘/원인:</strong> ${log.blockReason}</div>
+          <div><strong>해석:</strong> ${log.reflection || "기록 없음"}</div>
+          <div class="muted" style="margin-top:6px;">${log.date}</div>
+        </div>
+      `).join("");
+    }
+
+    function clearLogs() {
+      localStorage.removeItem(LOGS_KEY);
+      renderLogs();
+      renderTitles();
+    }
+
+    function resetGrowth() {
+      const ok = confirm("성장치를 초기화할까요?");
+      if (!ok) return;
+      saveData(GROWTH_KEY, defaultGrowth);
+      renderGrowth();
+      renderTitles();
+    }
+
+    function runMicroQuest(name) {
+      const micro = getMicro();
+      micro.unshift({
+        id: Date.now(),
+        name,
+        date: new Date().toLocaleString()
+      });
+      if (micro.length > 10) micro.pop();
+      saveData(MICRO_KEY, micro);
+
+      const logs = getLogs();
+      logs.unshift({
+        id: Date.now(),
+        date: new Date().toLocaleString(),
+        questTitle: "[응급] " + name,
+        subject: "복구",
+        questType: "응급 퀘스트",
+        difficulty: "낮음",
+        estimatedTime: "5분",
+        resultRank: "🫧 연결 성공",
+        blockReason: "무너지지 않고 연결함",
+        reflection: "오늘 0으로 만들지 않기 위한 최소 행동"
+      });
+      if (logs.length > 30) logs.pop();
+      saveData(LOGS_KEY, logs);
+
+      updateGrowth("MICRO", "MICRO", "복구", true);
+      renderMicro();
+      renderLogs();
+    }
+
+    function renderMicro() {
+      const microList = document.getElementById("microList");
+      const micro = getMicro();
+
+      if (micro.length === 0) {
+        microList.innerHTML = '<div class="empty">아직 응급 퀘스트 기록이 없습니다.</div>';
+        return;
+      }
+
+      microList.innerHTML = micro.map(item => `
+        <div class="item">
+          <div class="item-title">🫧 ${item.name}</div>
+          <div class="muted">${item.date}</div>
+        </div>
+      `).join("");
+    }
+
+    function getTitles() {
+      const logs = getLogs();
+      const growth = getGrowth();
+
+      const titles = [];
+      const successCount = logs.filter(l => l.resultRank === "🌟 대성공").length;
+      const recoveryCount = logs.filter(l => l.blockReason === "오답 복구 성공").length;
+      const failureCount = logs.filter(l => l.resultRank === "❌ 실패" || l.resultRank === "💥 대실패").length;
+      const totalLogs = logs.length;
+
+      if (totalLogs >= 1) titles.push("첫 기록자");
+      if (totalLogs >= 5) titles.push("학습 탐사자");
+      if (totalLogs >= 10) titles.push("로그 축적자");
+      if (successCount >= 3) titles.push("정밀 해석자");
+      if (recoveryCount >= 3) titles.push("개념 복원가");
+      if (failureCount >= 3) titles.push("복구 생존자");
+      if (growth.이해력 >= 30) titles.push("의미 추적자");
+      if (growth.구조화력 >= 30) titles.push("구조 설계자");
+      if (growth.적용력 >= 30) titles.push("판정 실행자");
+      if (growth.복구력 >= 30) titles.push("회수 전문가");
+      if (growth.지속력 >= 30) titles.push("끈질긴 항해사");
+
+      return titles;
+    }
+
+    function renderTitles() {
+      const titleList = document.getElementById("titleList");
+      const currentTitles = document.getElementById("currentTitles");
+      const titles = getTitles();
+
+      if (titles.length === 0) {
+        titleList.innerHTML = '<div class="empty">아직 해금된 칭호가 없습니다.</div>';
+        currentTitles.innerHTML = '<span class="badge">아직 없음</span>';
+        return;
+      }
+
+      titleList.innerHTML = titles.map(t => `
+        <div class="item">
+          <div class="item-title">🏅 ${t}</div>
+          <div class="muted">누적 기록과 성장치에 따라 해금된 칭호입니다.</div>
+        </div>
+      `).join("");
+
+      currentTitles.innerHTML = titles.map(t => `<span class="badge">${t}</span>`).join("");
+    }
+
+    function exportData() {
+      const payload = {
+        goal: getGoal(),
+        quests: getQuests(),
+        logs: getLogs(),
+        growth: getGrowth(),
+        character: getCharacter(),
+        micro: getMicro()
+      };
+      const text = JSON.stringify(payload, null, 2);
+      document.getElementById("exportPreview").textContent = text;
+      navigator.clipboard.writeText(text).then(() => {
+        alert("데이터를 클립보드에 복사했습니다.");
+      }).catch(() => {
+        alert("미리보기는 생성되었지만 자동 복사는 실패했습니다.");
+      });
+    }
+
+    function importData() {
+      const raw = document.getElementById("importBox").value.trim();
+      if (!raw) {
+        alert("불러올 JSON을 붙여넣어 주세요.");
+        return;
+      }
+
+      try {
+        const parsed = JSON.parse(raw);
+
+        if (parsed.goal) saveData(GOAL_KEY, parsed.goal);
+        if (parsed.quests) saveData(QUESTS_KEY, parsed.quests);
+        if (parsed.logs) saveData(LOGS_KEY, parsed.logs);
+        if (parsed.growth) saveData(GROWTH_KEY, parsed.growth);
+        if (parsed.character) saveData(CHARACTER_KEY, parsed.character);
+        if (parsed.micro) saveData(MICRO_KEY, parsed.micro);
+
+        initRender();
+        alert("데이터를 불러왔습니다.");
+      } catch (error) {
+        alert("JSON 형식이 올바르지 않습니다.");
+      }
+    }
+
+    function initRender() {
+      renderGoal();
+      renderCharacter();
+      renderQuests();
+      renderQuestSelect();
+      renderLogs();
+      renderGrowth();
+      renderMicro();
+      renderTitles();
+    }
+
+    function init() {
+      initRender();
+
+      document.getElementById("saveGoalButton").addEventListener("click", saveGoal);
+      document.getElementById("clearGoalButton").addEventListener("click", clearGoal);
+      document.getElementById("saveCharacterButton").addEventListener("click", saveCharacter);
+      document.getElementById("addQuestButton").addEventListener("click", addQuest);
+      document.getElementById("clearQuestButton").addEventListener("click", clearQuestInputs);
+      document.getElementById("logResultButton").addEventListener("click", logResult);
+      document.getElementById("clearLogButton").addEventListener("click", clearLogInputs);
+      document.getElementById("clearLogsButton").addEventListener("click", clearLogs);
+      document.getElementById("resetGrowthButton").addEventListener("click", resetGrowth);
+      document.getElementById("exportButton").addEventListener("click", exportData);
+      document.getElementById("importButton").addEventListener("click", importData);
+    }
+
+    init();
+  </script>
+</body>
+</html>
