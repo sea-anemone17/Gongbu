@@ -55,22 +55,39 @@ function createSubject(name) {
   };
 }
 
+function normalizeGrowth(rawGrowth = {}) {
+  const base = defaultGrowth();
+
+  return {
+    ...base,
+    ...rawGrowth,
+    구조화력: (rawGrowth.구조화력 ?? base.구조화력) + (rawGrowth.정확도 ?? 0)
+  };
+}
+
+function normalizeSubject(subject) {
+  return {
+    id: subject.id || makeId("subject"),
+    name: subject.name || "이름 없는 과목",
+    stats: normalizeGrowth(subject.stats || {})
+  };
+}
+
 function normalizeExplorer(explorer) {
   return {
     id: explorer.id || makeId("explorer"),
     name: explorer.name || "이름 없는 탐사자",
     alias: explorer.alias || "",
     theme: explorer.theme || "",
-    subjects: Array.isArray(explorer.subjects) ? explorer.subjects : [],
+    subjects: Array.isArray(explorer.subjects)
+      ? explorer.subjects.map(normalizeSubject)
+      : [],
     quests: Array.isArray(explorer.quests) ? explorer.quests : [],
     logs: Array.isArray(explorer.logs) ? explorer.logs : [],
     microLogs: Array.isArray(explorer.microLogs) ? explorer.microLogs : [],
     reviews: Array.isArray(explorer.reviews) ? explorer.reviews : [],
     titles: Array.isArray(explorer.titles) ? explorer.titles : [],
-    growth: {
-      ...defaultGrowth(),
-      ...(explorer.growth || {})
-    },
+    growth: normalizeGrowth(explorer.growth || {}),
     timer: {
       ...defaultTimer(),
       ...(explorer.timer || {})
