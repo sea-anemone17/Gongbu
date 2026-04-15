@@ -21,14 +21,20 @@
           <div class="small-title">현재 탐사 상태</div>
           <p class="muted">
             탐사자를 선택하고, 과목을 등록한 뒤, 퀘스트를 생성해 공부 로그를 쌓아 보세요.
+            실패는 벌점이 아니라 복구 가능한 정보로 기록됩니다.
           </p>
         </div>
 
         <div class="stats-mini">
           <div class="stats-mini-item">
-            <div class="small-title">안내</div>
-            <div class="muted">
-              탐사자 → 과목 → 퀘스트 순으로 등록하면 가장 자연스럽게 사용할 수 있습니다.
+            <div class="small-title">현재 탐사자</div>
+            <div id="characterPreview" class="muted">아직 선택된 탐사자가 없습니다.</div>
+          </div>
+
+          <div class="stats-mini-item">
+            <div class="small-title">현재 칭호</div>
+            <div id="currentTitles" class="badge-wrap">
+              <span class="badge">아직 없음</span>
             </div>
           </div>
         </div>
@@ -79,7 +85,7 @@
             <input id="subjectName" placeholder="예: 수학, 영어, 법, 세계지리">
           </div>
 
-          <div class="field" style="justify-content: end;">
+          <div class="field" style="justify-content:end;">
             <label>&nbsp;</label>
             <div class="button-row">
               <button class="main-btn" id="addSubjectButton">과목 추가</button>
@@ -163,6 +169,27 @@
           <div id="timerDisplay">00:00</div>
           <div id="timerPraise"></div>
         </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>🏅 칭호</h2>
+      <div id="titleList" class="title-list">
+        <div class="empty">아직 해금된 칭호가 없습니다.</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>📚 로그북</h2>
+      <div id="logList" class="log-list">
+        <div class="empty">아직 로그가 없습니다.</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>🫧 응급 기록</h2>
+      <div id="microList" class="micro-list">
+        <div class="empty">아직 응급 퀘스트 기록이 없습니다.</div>
       </div>
     </div>
   </div>
