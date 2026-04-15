@@ -138,3 +138,45 @@ function getUnlockedTitles(explorer) {
 
   return titles;
 }
+// ====== 임시 렌더 함수 (에러 방지용) ======
+
+function renderLogs() {
+  const data = loadAppData();
+  const current = getCurrentExplorer(data);
+  const container = document.getElementById("logList");
+
+  if (!container) return;
+
+  if (!current || current.logs.length === 0) {
+    container.innerHTML = `<div class="empty">아직 로그가 없습니다.</div>`;
+    return;
+  }
+
+  container.innerHTML = current.logs.map(log => `
+    <div class="item">
+      <div class="item-title">${log.questTitle}</div>
+      <div class="muted">${log.date}</div>
+      <div>${log.resultRank}</div>
+      <div>${log.selfExplanation || ""}</div>
+      <div>${log.reflection || ""}</div>
+    </div>
+  `).join("");
+}
+
+function renderReviewList() {
+  const container = document.getElementById("reviewList");
+  if (!container) return;
+  container.innerHTML = `<div class="empty">복습 기능 준비 중</div>`;
+}
+
+function renderFailureStats() {
+  const container = document.getElementById("failureStats");
+  if (!container) return;
+  container.innerHTML = `<div class="empty">통계 준비 중</div>`;
+}
+
+function renderMicro() {
+  const container = document.getElementById("microList");
+  if (!container) return;
+  container.innerHTML = `<div class="empty">응급 기록 준비 중</div>`;
+}
