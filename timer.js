@@ -67,6 +67,56 @@ function playTimerFinishEffect(message) {
   }
 }
 
+function syncTimerToCurrentExplorer() {
+  const data = loadAppData();
+  const current = getCurrentExplorer(data);
+  if (!current) return;
+
+  current.timer.remainingSeconds = remainingSeconds;
+  current.timer.isRunning = !!timerInterval;
+  saveAppData(data);
+}
+
+function grantTimerReward() {
+  const data = loadAppData();
+  const current = getCurrentExplorer(data);
+  if (!current) return;
+
+  current.growth.지속력 += 2;
+  clampExplorerGrowth(current);
+
+  current.logs.unshift({
+    id: makeId("timerlog"),
+    date: new Date().toLocaleString(),
+    questTitle: "타이머 완료",
+    subjectId: null,
+    subjectName: "집중",
+    questType: "타이머",
+    difficulty: "보통",
+    resultRank: "⏳ 완료",
+    blockReason: "집중 시간 완료",
+    selfExplanation: "",
+    reflection: "타이머를 끝까지 유지했다"
+  });
+
+  if (current.logs.length > 30) {
+    current.logs.pop();
+  }
+
+  current.microLogs.unshift({
+    id: makeId("micro"),
+    name: "타이머 완료",
+    date: new Date().toLocaleString()
+  });
+
+  if (current.microLogs.length > 10) {
+    current.microLogs.pop();
+  }
+
+  current.titles = getUnlockedTitles(current);
+  saveAppData(data);
+}
+
 function startTimer() {
   const minutesInput = document.getElementById("timerMinutes");
   const value = parseInt(minutesInput?.value);
@@ -139,53 +189,4 @@ function resetTimer() {
   if (overlay) {
     overlay.innerHTML = "";
   }
-}
-
-function syncTimerToCurrentExplorer() {
-  const data = loadAppData();
-  const current = getCurrentExplorer(data);
-  if (!current) return;
-
-  current.timer.remainingSeconds = remainingSeconds;
-  current.timer.isRunning = !!timerInterval;
-  saveAppData(data);
-}
-
-function grantTimerReward() {
-  const data = loadAppData();
-  const current = getCurrentExplorer(data);
-  if (!current) return;
-
-  current.growth.지속력 += 2;
-  clampExplorerGrowth(current);
-
-  current.logs.unshift({
-    id: makeId("timerlog"),
-    date: new Date().toLocaleString(),
-    questTitle: "타이머 완료",
-    subjectId: null,
-    subjectName: "집중",
-    questType: "타이머",
-    difficulty: "보통",
-    resultRank: "⏳ 완료",
-    blockReason: "집중 시간 완료",
-    reflection: "타이머를 끝까지 유지했다"
-  });
-
-  if (current.logs.length > 30) {
-    current.logs.pop();
-  }
-
-  current.microLogs.unshift({
-    id: makeId("micro"),
-    name: "타이머 완료",
-    date: new Date().toLocaleString()
-  });
-
-  if (current.microLogs.length > 10) {
-    current.microLogs.pop();
-  }
-
-  current.titles = getUnlockedTitles(current);
-  saveAppData(data);
 }
