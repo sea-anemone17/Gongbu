@@ -1,4 +1,4 @@
-const STORAGE_KEY = "hazel_study_rpg_data_v2";
+const STORAGE_KEY = "hazel_study_rpg_data_v3";
 
 const defaultData = {
   currentExplorerId: null,
@@ -7,44 +7,6 @@ const defaultData = {
 
 function deepCopy(value) {
   return JSON.parse(JSON.stringify(value));
-}
-
-function loadAppData() {
-  try {
-    const raw = localStorage.getItem(STORAGE_KEY);
-    if (!raw) return deepCopy(defaultData);
-
-    const parsed = JSON.parse(raw);
-    const data = {
-      ...deepCopy(defaultData),
-      ...parsed
-    };
-
-    if (!Array.isArray(data.explorers)) {
-      data.explorers = [];
-    }
-
-    data.explorers = data.explorers.map(normalizeExplorer);
-
-    if (
-      data.currentExplorerId &&
-      !data.explorers.some(exp => exp.id === data.currentExplorerId)
-    ) {
-      data.currentExplorerId = data.explorers[0]?.id || null;
-    }
-
-    return data;
-  } catch (error) {
-    return deepCopy(defaultData);
-  }
-}
-
-function saveAppData(data) {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
-}
-
-function makeId(prefix = "id") {
-  return `${prefix}_${Date.now()}_${Math.floor(Math.random() * 100000)}`;
 }
 
 function defaultGrowth() {
@@ -62,6 +24,10 @@ function defaultTimer() {
     remainingSeconds: 0,
     isRunning: false
   };
+}
+
+function makeId(prefix = "id") {
+  return `${prefix}_${Date.now()}_${Math.floor(Math.random() * 100000)}`;
 }
 
 function createExplorer(name, alias = "", theme = "") {
@@ -110,6 +76,40 @@ function normalizeExplorer(explorer) {
       ...(explorer.timer || {})
     }
   };
+}
+
+function loadAppData() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) return deepCopy(defaultData);
+
+    const parsed = JSON.parse(raw);
+    const data = {
+      ...deepCopy(defaultData),
+      ...parsed
+    };
+
+    if (!Array.isArray(data.explorers)) {
+      data.explorers = [];
+    }
+
+    data.explorers = data.explorers.map(normalizeExplorer);
+
+    if (
+      data.currentExplorerId &&
+      !data.explorers.some(exp => exp.id === data.currentExplorerId)
+    ) {
+      data.currentExplorerId = data.explorers[0]?.id || null;
+    }
+
+    return data;
+  } catch (error) {
+    return deepCopy(defaultData);
+  }
+}
+
+function saveAppData(data) {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
 }
 
 function getCurrentExplorer(data) {
