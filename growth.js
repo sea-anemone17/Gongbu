@@ -49,12 +49,18 @@ function applyGrowth(current, resultRank, questType, subjectId, blockReason = ""
     current.growth.복구력 += 2;
   } else if (resultRank === "💥 대실패") {
     current.growth.복구력 += 3;
+  } else if (resultRank === "⏳ 완료") {
+    current.growth.지속력 += 2;
   }
 
   if (questType === "탐사") current.growth.이해력 += 1;
   if (questType === "해석") current.growth.구조화력 += 1;
   if (questType === "판정") current.growth.적용력 += 1;
   if (questType === "복구") current.growth.복구력 += 1;
+  if (questType === "회상") {
+    current.growth.이해력 += 1;
+    current.growth.구조화력 += 1;
+  }
 
   if (blockReason === "설명 가능해짐") current.growth.구조화력 += 2;
   if (blockReason === "오답 복구 성공") current.growth.복구력 += 2;
@@ -68,6 +74,10 @@ function applyGrowth(current, resultRank, questType, subjectId, blockReason = ""
     if (questType === "해석") subject.stats.구조화력 += 1;
     if (questType === "판정") subject.stats.적용력 += 1;
     if (questType === "복구") subject.stats.복구력 += 1;
+    if (questType === "회상") {
+      subject.stats.이해력 += 1;
+      subject.stats.구조화력 += 1;
+    }
 
     if (resultRank === "🌟 대성공") {
       subject.stats.이해력 += 1;
@@ -166,6 +176,7 @@ function renderLogs() {
         ${log.subjectName} / ${log.questType} / ${log.difficulty}
       </div>
       <div class="muted">원인: ${log.blockReason || "기록 없음"}</div>
+      <div class="muted">자기설명: ${log.selfExplanation || "없음"}</div>
       <div class="muted">메모: ${log.reflection || "없음"}</div>
       <div class="muted">${log.date}</div>
     </div>
@@ -193,6 +204,73 @@ function renderMicro() {
     <div class="item">
       <div class="item-title">🫧 ${item.name}</div>
       <div class="muted">${item.date}</div>
+    </div>
+  `).join("");
+}
+
+function renderReviewList() {
+  const data = loadAppData();
+  const current = getCurrentExplorer(data);
+  const reviewList = document.getElementById("reviewList");
+
+  if (!reviewList) return;
+
+  if (!current) {
+    reviewList.innerHTML = `<div class="empty">먼저 탐사자를 선택해 주세요.</div>`;
+    return;
+  }
+
+  const pendingReviews = current.reviews
+    .filter(review => review.status === "pending")
+    .sort((a, b) => a.reviewDate.localeCompare(b.reviewDate));
+
+  if (pendingReviews.length === 0) {
+    reviewList.innerHTML = `<div class="empty">아직 예약된 복습이 없습니다.</div>`;
+    return;
+  }
+
+  reviewList.innerHTML = pendingReviews.map(review => `
+    <div class="item">
+      <div class="item-title">${review.title}</div>
+      <div class="muted">${review.subjectName} / ${review.reviewType}</div>
+      <div class="muted">복습일: ${review.reviewDate}</div>
+      <div class="button-row" style="margin-top:10px;">
+        <button class="main-btn" onclick="completeReview('${review.id}')">회상 완료</button>
+      </div>
+    </div>
+  `).join("");
+}
+
+function renderFailureStats() {
+  const data = loadAppData();
+  const current = getCurrentExplorer(data);
+  const failureStats = document.getElementById("failureStats");
+
+  if (!failureStats) return;
+
+  if (!current) {
+    failureStats.innerHTML = `<div class="empty">먼저 탐사자를 선택해 주세요.</div>`;
+    return;
+  }
+
+  const counts = {};
+
+  current.logs.forEach(log => {
+    if (!log.blockReason) return;
+    counts[log.blockReason] = (counts[log.blockReason] || 0) + 1;
+  });
+
+  const sorted = Object.entries(counts).sort((a, b) => b[1] - a[1]);
+
+  if (sorted.length === 0) {
+    failureStats.innerHTML = `<div class="empty">아직 통계가 없습니다.</div>`;
+    return;
+  }
+
+  failureStats.innerHTML = sorted.map(([reason, count]) => `
+    <div class="item">
+      <div class="item-title">${reason}</div>
+      <div class="muted">누적 ${count}회</div>
     </div>
   `).join("");
 }
