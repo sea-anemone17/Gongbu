@@ -15,6 +15,8 @@ function renderAll() {
   renderSafe(renderLogs);
   renderSafe(renderTitles);
   renderSafe(renderMicro);
+  renderSafe(renderReviewList);
+  renderSafe(renderFailureStats);
 }
 
 function bindEvents() {
